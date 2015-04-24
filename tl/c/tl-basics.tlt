@@ -1,0 +1,66 @@
+;;;; Module tl/c/tl-basics.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/tl-basics.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  NIL
+  ;; Quoted symbols defined in this file.
+  NIL
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::ERROR-ONE-ARG "error_one_arg" FUNCTION (T T) NULL)
+    (TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T)
+    (TL:LAST "last" FUNCTION (LIST) LIST))
+  ;; Defined functions.
+  '((TL::APPEND-FUNCTION . "append_function")
+    (TL:ARRAY-HAS-FILL-POINTER-P . "array_has_fill_pointer_p")
+    (TL:ASSOC-EQL . "assoc_eql")
+    (TL:ASSOC-EQUAL . "assoc_equal")
+    (TL:ASSQ . "assq")
+    (TL::BOUNDED-STRING-COMPARE . "bounded_string_compare")
+    (TL::COERCE-TO-STRING . "coerce_to_string")
+    (TL:COPY-LIST . "copy_list")
+    (TL::DELETE-EQL . "delete_eql")
+    (TL::DELETE-EQUAL . "delete_equal")
+    (TL:DELQ . "delq")
+    (TL::ENDP-ERROR-FUNCTION . "endp_error_function")
+    (TL:EQUAL . "equal")
+    (GENERIC-ARRAY-DIMENSION . "generic_array_dimension")
+    (GENERIC-FILL-POINTER . "generic_fill_pointer")
+    (GENERIC-SET-FILL-POINTER . "generic_set_fill_pointer")
+    (TL:IDENTITY . "identity")
+    (TL:LENGTH . "length")
+    (TL:LISP-IMPLEMENTATION-TYPE . "lisp_implementation_type")
+    (TL:LISP-IMPLEMENTATION-VERSION . "lisp_implementation_version")
+    (TL::MEMBER-EQL . "member_eql")
+    (TL:MEMBER-EQUAL . "member_equal")
+    (TL:MEMQ . "memq")
+    (TL::NCONC-1 . "nconc_1")
+    (TL:NRECONC . "nreconc")
+    (TL:NTH . "nth")
+    (TL:NTHCDR . "nthcdr")
+    (TL::STRING-ARG-INVALID . "string_arg_invalid")
+    (TL:STRING-EQUAL . "string_equal")
+    (TL:STRING-GREATERP . "string_greaterp")
+    (TL::STRING-LESSP . "string_lessp")
+    (TL::WRITE-CHAR-INTO-STRING . "write_char_into_string")
+    (TL::WRITE-STRING-INTO-STRING . "write_string_into_string"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ))
+  ;; Defined variables
+  NIL
+  ;; Used class typedefs.
+  NIL
+  )

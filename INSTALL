@@ -1,0 +1,61 @@
+ThinLisp is shipped as a gzipped tarball and as a zip file.
+
+1.  Unpack the distribution into a directory of your choice.  To unpack the
+tarball on UNIX or Windows where Cygwin has been installed, use the following
+commands.
+
+  cd <install-directory>
+  tar xzvf thinlisp-1.0.tgz
+
+To unpack the zip file, use Winzip or some equivalent on Windows, or use the
+following command.
+
+  cd <install-directory>
+  unzip thinlisp-1.0.tgz
+
+2.  Start your Lisp environment such that the default directory is the src
+directory within the Thinlisp distribution, such that the following line would
+work appropriately.  (Note that tlt stands for ThinLisp Translator.)
+
+  (truename "tlt/") 
+    => "/home/jallard/work/tlt/"
+
+3.  Bootstrap the translator by loading its boot file.
+
+  (load "tlt/lisp/boot")
+
+4.  Compile the translator.
+
+  (compile-tlt)
+
+5.  A small test system has been included, called "lecho" for Lisp
+Echo.  It implements an executable that mimics the behavior of the
+"echo" command in the SH, CSH, or BASH shells.  You can compile, load
+and translate Lecho, and its underlying TL system, with the following
+form.
+
+  (tl:translate-system 'lecho)
+
+6.  The translator also emits makefiles.  On a Linux system you could produce
+the Lecho executable with the following commands from a shell.  Look in the bin
+directories for other makefiles for BSD, Cygnus, and Mac.
+
+  cd tl/bin
+  make -f makefile-linux
+  cd ../../lecho/bin
+  make -f makefile-linux
+
+7.  This should have produced an executable "lecho" in the lecho/bin
+directory.  You can make your own sytems by copying the boot file in
+lecho/lisp into <your-sys>/lisp/boot.lisp, adding your own
+functionality, and running similar commands.  
+
+Note that there are top level makefiles and boot.lisp files that
+perform many of the tasks described here.  Add lines for your own
+subsystems to these in order to get a fully automated build of your
+Lisp-based libraries and executables.
+
+Enjoy.
+
+--------
+$Id: INSTALL,v 1.4 2001/07/01 11:15:24 jallard Exp $

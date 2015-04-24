@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+<!-- Created by texi2html 1.56k from tl-manual.texinfo on 12 October 2001 -->
+
+<TITLE>ThinLisp Rant and Notes - Footnotes</TITLE>
+</HEAD>
+<BODY>
+<H1>ThinLisp Manual</H1>
+<H2>Version 1.0.1</H2>
+<H2>12 October 2001</H2>
+<ADDRESS>The ThinLisp Group:</ADDRESS>
+<ADDRESS>Jim Allard</ADDRESS>
+<ADDRESS>Ben Hyde</ADDRESS>
+<P>
+<P><HR><P>
+<H3><A NAME="FOOT1" HREF="tl-manual.html#DOCF1">(1)</A></H3>
+<P>Of course this is ignoring
+other, more broadly applicable developments, such as multi-tasking operating
+systems.
+<H3><A NAME="FOOT2" HREF="tl-manual.html#DOCF2">(2)</A></H3>
+<P>All apologies in advance
+to my father-in-law Ed (a scientist) and my brother-in-law Holger (a
+mathematician) from me (an engineer).
+<H3><A NAME="FOOT3" HREF="tl-manual.html#DOCF3">(3)</A></H3>
+<P>In the rest of this discussion, the scientist has gone for coffee,
+uninterested because there is nothing pre-existing to study, only new things
+being spun out of the air.
+<H3><A NAME="FOOT4" HREF="tl-manual.html#DOCF4">(4)</A></H3>
+<P><CITE>The C Programming
+Language, Second Edition</CITE>, by Kernigan, Brian W. and Ritchie, Dennis M.,
+Copyright 1988, 1978 by Bell Telephone Laboratories, Incorporated Prentice Hall
+P T R, Englewood Cliffs, NewJersey 07632
+<H3><A NAME="FOOT5" HREF="tl-manual.html#DOCF5">(5)</A></H3>
+<P>For consing operations that can be called from either context, you can
+declare a consing area of <CODE>either</CODE>, but in practice that is fairly rare.
+<H3><A NAME="FOOT6" HREF="tl-manual.html#DOCF6">(6)</A></H3>
+<P>There is an argument that they should be aligned on 8 byte
+addresses.  There are two advantages to 8 byte alignment.  One is that it would
+enable us to reliably store immediate double floats and pointers into the same
+array.  The second is that it would can give us an immediate type tag for conses
+that is itself the offset to the cdr of a cons.  The argument for 4 byte
+alignment is that all current C compilers we use align structures on 4 byte
+addresses, but some won't align them on 8 byte addresses, even if they contain
+doubles.  The other argument for 4 byte alignment is that we would not need to
+occasionally skip forward 4 bytes when allocating from heap in order to find the
+next 8 byte aligned address.  For now, the 4 byte alignment wins.
+<H3><A NAME="FOOT7" HREF="tl-manual.html#DOCF7">(7)</A></H3>
+<P>Kim Barrett recently made a convincing argument for an immediate type
+tag of zero for fixnums.  With this approach there is no bit fiddling needed for
+fixnum numeric operations.  I had originally dismissed this approach since it
+would require pointer arithmatic to be done to fetch the type tag of an object.
+However, since most processors have a single instruction that can fetch from an
+address plus offset, this becomes a moot point.  For now, the existing scheme
+carries the day due to inertia.  -jallard, 10/31/99
+<H3><A NAME="FOOT8" HREF="tl-manual.html#DOCF8">(8)</A></H3>
+<P>The Alpha OSF has since been renamed DEC UNIX.
+<H3><A NAME="FOOT9" HREF="tl-manual.html#DOCF9">(9)</A></H3>
+<P>The following comment applies only to 8 byte alignment: For
+example, we could put immediate floats into odd-indexed simple vector locations,
+and those floats would consume 2 elements.  For structures and frames, this
+could provide significant savings.  -jra 8/30/95
+<H3><A NAME="FOOT10" HREF="tl-manual.html#DOCF10">(10)</A></H3>
+<P>This note about classes is being written in anticipation of their
+implementation.  -jallard 10/29/99
+<H3><A NAME="FOOT11" HREF="tl-manual.html#DOCF11">(11)</A></H3>
+<P>This latter idea of having a
+"reclaimed flag" has never been implemented.  -jallard 10/12/99
+<H3><A NAME="FOOT12" HREF="tl-manual.html#DOCF12">(12)</A></H3>
+<P>Rest
+arguments have since been added.  -jallard 10/9/99.
+<P><HR><P>
+This document was generated on 12 October 2001 using
+<A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>&nbsp;1.56k.
+</BODY>
+</HTML>

@@ -1,0 +1,46 @@
+#
+# LECHO Macosx Makefile
+#
+# Copyright (c) 2001 The ThinLisp Group
+
+CC = cc -o
+
+CFLAGS =
+
+ifdef THREAD
+CFLAGS += -DPTHREAD
+endif
+
+ifdef OPT
+CFLAGS += -O2 -fomit-frame-pointer
+else
+CFLAGS += -ggdb3
+endif
+
+CFLAGS += -pipe -ansi -pedantic -W -Wall -c
+
+LINK = $(CC)
+
+ifdef OPT
+LINKFLAGS = -O2
+LIBS = ../../tl/opt/libtl.a
+else
+LINKFLAGS = -g
+LIBS = ../../tl/bin/libtl.a
+endif
+
+SYSLIBS = 
+OBJECTS =  main.o boot.o echo.o
+
+all : lecho
+
+clean :
+	-rm *.o
+	-( if [ -f lecho ] ; then rm lecho ; fi )
+
+lecho : makefile-macosx $(OBJECTS) $(LIBS)
+	-( if [ -f lecho ] ; then rm lecho ; fi )
+	$(LINK) lecho $(LINKFLAGS) $(OBJECTS) $(LIBS) $(SYSLIBS)
+
+%.o : ../c/%.c ../c/%.h makefile-macosx
+	$(CC) $@ $(CFLAGS) -I ../c -I../../tl/c/ $<

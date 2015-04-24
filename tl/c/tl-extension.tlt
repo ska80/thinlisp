@@ -1,0 +1,67 @@
+;;;; Module tl/c/tl-extension.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/tl-extension.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  NIL
+  ;; Quoted symbols defined in this file.
+  NIL
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T)
+    (TL:MEMQ "memq" FUNCTION (T LIST) T)
+    (TL:WRITE-CHAR "write_char" FUNCTION (CHARACTER &OPTIONAL T) CHARACTER)
+    (TL::WRITE-FIXNUM "write_fixnum" FUNCTION (FIXNUM FIXNUM FIXNUM T) FIXNUM)
+    (TL::WRITE-STRING-FUNCTION "write_string_function" FUNCTION (STRING T FIXNUM T) STRING))
+  ;; Defined functions.
+  '((TL::COERCE-TO-DOUBLE-FLOAT-FUNCTION . "coerce_to_double_float_function")
+    (TL::EQ-OR-MEMQ . "eq_or_memq")
+    (TL:FTRUNCATEE-UP . "ftruncatee_up")
+    (TL::GETFQ-FUNCTION . "getfq_function")
+    (TL::GETFQ-FUNCTION-NO-DEFAULT . "getfq_function_no_default")
+    (TL::PRINT-RANDOM-OBJECT-PREFIX . "print_random_object_prefix")
+    (TL::PRINT-RANDOM-OBJECT-SUFFIX . "print_random_object_suffix")
+    (TL:REM-FIXNUMS . "rem_fixnums")
+    (TL:TRUNCATEF-FIRST . "truncatef_first")
+    (TL::TWO-ARG-GCDF . "two_arg_gcdf")
+    (TL::TWO-ARG-LCMF . "two_arg_lcmf")
+    (TL::VALIDATE-FIXNUM-ASSUMPTIONS . "validate_fixnum_assumptions"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ))
+  ;; Defined variables
+  '((TL::COMPILE-TIME-MOST-POSITIVE-FIXNUM . "compile_time_most_positive_fixnum")
+    (TL::DEBUG-1 . "debug_1")
+    (TL::DEBUG-10 . "debug_10")
+    (TL::DEBUG-11 . "debug_11")
+    (TL::DEBUG-12 . "debug_12")
+    (TL::DEBUG-2 . "debug_2")
+    (TL::DEBUG-3 . "debug_3")
+    (TL::DEBUG-4 . "debug_4")
+    (TL::DEBUG-5 . "debug_5")
+    (TL::DEBUG-6 . "debug_6")
+    (TL::DEBUG-7 . "debug_7")
+    (TL::DEBUG-8 . "debug_8")
+    (TL::DEBUG-9 . "debug_9")
+    (TL::DESTINATION-FOR-SYMBOL-WITH-PRESERVED-CELLS . "destination_for_symbol_with_preserved_cells")
+    (TL::FIXNUM-TEST-VALUE . "fixnum_test_value")
+    (TL::FLOAT-TEST-VALUE . "float_test_value")
+    (TL:KEYWORD-PACKAGE-1 . "keyword_package_1")
+    (TL:LISP-PACKAGE-1 . "lisp_package_1")
+    (TL::NEGATIVE-FIFTY-MILLION . "negative_fifty_million")
+    (TL::SPECIAL-VARIABLE-FOR-USE-VALUE-MACRO . "special_variable_for_use_value_macro")
+    (TL:WITHIN-MANAGED-OBJECT-SCOPE . "within_managed_object_scope"))
+  ;; Used class typedefs.
+  NIL
+  )

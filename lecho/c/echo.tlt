@@ -1,0 +1,37 @@
+;;;; Module lecho/c/echo.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for lecho/lisp/echo.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  NIL
+  ;; Quoted symbols defined in this file.
+  NIL
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::COERCE-TO-STRING "coerce_to_string" FUNCTION (T) STRING)
+    (TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T)
+    (TL::FORMAT-FUNCTION "format_function" FUNCTION (T STRING T) T)
+    (TL:TERPRI "terpri" FUNCTION (&OPTIONAL T) NULL)
+    (TL:WRITE-CHAR "write_char" FUNCTION (CHARACTER &OPTIONAL T) CHARACTER)
+    (TL::WRITE-STRING-FUNCTION "write_string_function" FUNCTION (STRING T FIXNUM T) STRING))
+  ;; Defined functions.
+  '((TL-USER::MAIN . "main_1"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ))
+  ;; Defined variables
+  NIL
+  ;; Used class typedefs.
+  NIL
+  )

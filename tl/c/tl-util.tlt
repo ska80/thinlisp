@@ -1,0 +1,74 @@
+;;;; Module tl/c/tl-util.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/tl-util.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  "tl_tl_util_symbols"
+  ;; Quoted symbols defined in this file.
+  `(:DYNAMIC
+    :STATIC
+    :TEMPORARY)
+  ;; Used compiled-functions = (name func-array . index).
+  '((TL::FLET-SEARCH-PREDICATE-IN-SEARCH-TEST-0 "tl_tl_util_funcs" . 0))
+  ;; Name for this file's array of compiled-functions.
+  "tl_tl_util_funcs"
+  ;; Compiled-function objects defined in this file.
+  `(TL::FLET-SEARCH-PREDICATE-IN-SEARCH-TEST-0)
+  ;; Used function type signatures.
+  '((TL:COPY-LIST "copy_list" FUNCTION (LIST) LIST)
+    (TL::ERROR-ONE-ARG "error_one_arg" FUNCTION (T T) NULL)
+    (TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T)
+    (TL:NTHCDR "nthcdr" FUNCTION (FIXNUM LIST) T)
+    (TL:STRING-EQUAL "string_equal" FUNCTION (T T) T))
+  ;; Defined functions.
+  '((TL::COMPUTE-NEW-PLIST . "compute_new_plist")
+    (TL:COPY-OPTIMIZED-CONSTANT . "copy_optimized_constant")
+    (TL:COPY-SEQ . "copy_seq")
+    (TL:COPY-TREE . "copy_tree")
+    (TL:EQUALP . "equalp")
+    (TL:FILL . "fill")
+    (TL:FILL-ARRAY-DOUBLE-FLOAT . "fill_array_double_float")
+    (TL::FILL-ARRAY-SIGNED-BYTE-16 . "fill_array_signed_byte_16")
+    (TL:FILL-ARRAY-UNSIGNED-BYTE-16 . "fill_array_unsigned_byte_16")
+    (TL:FILL-ARRAY-UNSIGNED-BYTE-8 . "fill_array_unsigned_byte_8")
+    (TL:FILL-LIST . "fill_list")
+    (TL:FILL-SIMPLE-VECTOR . "fill_simple_vector")
+    (TL::FLET-SEARCH-PREDICATE-IN-SEARCH-TEST-0 . "flet_search_predicate_in_search_test_0")
+    (TL::GENERIC-POSITION . "generic_position")
+    (TL::GENERIC-SEARCH . "generic_search")
+    (TL::GENERIC-SORT-VECTOR . "generic_sort_vector")
+    (TL::GENERIC-SXHASH . "generic_sxhash")
+    (TL:LIST-LENGTH . "list_length")
+    (TL::NON-LIST-REMOVE-ERROR . "non_list_remove_error")
+    (TL::NSUBST-EQL-IDENT . "nsubst_eql_ident")
+    (TL::NSUBST-EQL-IDENT-AUX . "nsubst_eql_ident_aux")
+    (TL:PAIRLIS . "pairlis")
+    (TL::QUICK-SORT-LIST . "quick_sort_list")
+    (TL:REALLOC-REGION-UP-TO-LIMIT . "realloc_region_up_to_limit")
+    (TL:REGION-BYTES-AVAILABLE . "region_bytes_available")
+    (TL:REGION-BYTES-SIZE . "region_bytes_size")
+    (TL:REGION-BYTES-USED . "region_bytes_used")
+    (TL::REGION-NUMBER-OF-NAME . "region_number_of_name")
+    (TL::SEARCH-LIST-FUNCTION . "search_list_function")
+    (TL::SEARCH-TEST . "search_test")
+    (TL:SUBSTITUTE . "substitute")
+    (TL::SXHASH-ARRAY-16 . "sxhash_array_16")
+    (TL::SXHASH-CONS-TREE . "sxhash_cons_tree")
+    (TL::SXHASH-DOUBLE-FLOAT . "sxhash_double_float")
+    (TL::TREE-EQUAL-TEST . "tree_equal_test")
+    (TL:VECTORP . "vectorp"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ)
+    (CURRENT-REGION "current_region" . OBJ))
+  ;; Defined variables
+  '((TL::*DECOMPOSE-FLOAT-BUFFER* . "Sdecompose_float_bufferS"))
+  ;; Used class typedefs.
+  NIL
+  )

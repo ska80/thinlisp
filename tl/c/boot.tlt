@@ -1,0 +1,57 @@
+;;;; Module tl/c/boot.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/boot.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  "tl_boot_symbols"
+  ;; Quoted symbols defined in this file.
+  `(TL-USER::TL
+    :SYSTEM-NICKNAMES
+    :SYSTEM-USED-SYSTEMS
+    :SYSTEM-MODULES
+    TL-USER::BOOT
+    TL-USER::STUBS
+    TL-USER::TL-TYPES
+    INLINE
+    TL-USER::TL-PRIM
+    TL:DO
+    TL:FORMAT
+    TL-USER::INPUT
+    TL-USER::TL-BASICS
+    TL:LOOP
+    TL:APPLY
+    TL-USER::GENERIC-MATH
+    TL-USER::GENERIC-PRIM
+    TL-USER::PACKAGES
+    TL-USER::TL-UTIL
+    TL-USER::VERSIONS
+    TL-USER::FORWARD
+    TL-USER::TL-EXTENSION
+    TL-USER::TL-TIME)
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T)
+    (TL::SET-GET "set_get" FUNCTION (T T T) T))
+  ;; Defined functions.
+  NIL
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ)
+    (TL:ALL-SYSTEMS "all_systems" . OBJ)
+    (TL:CURRENT-SYSTEM-BEING-LOADED "current_system_being_loaded" . OBJ))
+  ;; Defined variables
+  NIL
+  ;; Used class typedefs.
+  NIL
+  )

@@ -1,0 +1,41 @@
+#
+# TL Macosx Makefile
+#
+# Copyright (c) 2001 The ThinLisp Group
+
+CC = cc -o
+
+CFLAGS =
+
+ifdef THREAD
+CFLAGS += -DPTHREAD
+endif
+
+ifdef OPT
+CFLAGS += -O2 -fomit-frame-pointer
+else
+CFLAGS += -ggdb3
+endif
+
+CFLAGS += -pipe -ansi -pedantic -W -Wall -c
+
+ARCHIVE = ar -r -c -u
+OBJECTS =  tl.o boot.o stubs.o tl-types.o \
+        inline.o tl-prim.o do.o format.o input.o \
+        tl-basics.o loop.o apply.o generic-math.o generic-prim.o \
+        packages.o tl-util.o versions.o forward.o tl-extension.o \
+        tl-time.o
+
+all : libtl.a
+
+clean :
+	-rm *.o
+	-( if [ -f libtl.a ] ; then rm libtl.a ; fi )
+
+libtl.a : makefile-macosx $(OBJECTS) $(LIBS)
+	-( if [ -f libtl.a ] ; then rm libtl.a ; fi )
+	$(ARCHIVE) libtl.a $(OBJECTS)
+	ranlib libtl.a
+
+%.o : ../c/%.c ../c/%.h makefile-macosx ../c/tl.h
+	$(CC) $@ $(CFLAGS) -I ../c $<

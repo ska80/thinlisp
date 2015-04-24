@@ -1,0 +1,232 @@
+;;;; Module WISH-LIST
+
+;;; Copyright (c) 1997 Gensym Corporation.
+;;; All rights reserved.
+
+;;; Jim Allard, Glenn Iba, and Ben Hyde
+
+
+
+
+;;;; Things that need attention.
+
+The princ handling of pathnames in cmu lisp is different
+from other platforms.  That should be patched and submitted
+back to them.
+
+Jim should review my change to avoid using packages that
+are otherwise not referenced in the translate.
+
+Jim should decide where to put the compile time error
+funtion derror, etc.
+
+Jim should decide where the unix-style-namestring function
+should really reside.
+
+We need to have a way for systems to declare thier C library
+dependencies, for example so -lm can appear on the unix makefile.
+
+
+;;;; Wish List of Future Work
+
+
+This file should be added to whenever we see a thing we would like to do but
+can't quite justify right now.  Please sign and date all wishes.
+
+
+
+
+For safety 3 translations, a bounds checked set of AREF, SET-AREF, ELT, and
+SET-ELT implementations for the type-specific translations.  -jallard 3/6/97
+
+
+
+
+For safety 3 translations, a overflow detecting set of fixnum arithmetic
+operations for type-specific translations.  Note that generic-plus and friends
+already perform overflow detection when translated safely.  -jallard 3/6/97
+
+
+
+
+Declare static would make a function local to a file.  -jallard 3/7/97
+
+
+
+
+Incremental translation and recompile:
+  Only translate/recompile changed files or files that depend on changed files.
+  When writing translator output files, check if there's really a change first,
+     and if no change, don't write.  Then the c compiler will see the old
+     write date, and skip recomiling it.
+            - giba 4/18/97
+
+
+
+
+Complete coverage of type-coercion possibilities:
+  Handle coercions for all pairs of types.
+  In lieu of (or until) that, have translation warnings generated when
+     "bottoming out" on the void case.  Have such warnings be "gated" by
+     a declaration to suppress the warnings when the behavior of the
+     void case is being relied upon.
+            - giba 4/18/97
+
+
+
+
+For translated files with empty initialization functions, don't emit the
+function at all to allow for possible elimination of the object file from
+executables by the linker.  This is related to the desire to have library
+initializations all happen within a single file.  -jallard 4/22/97
+  It's an olde C hack to move the init code into a single contigously
+linked segment where it will page in once, and then page out forever,
+that's typically done by placing the init functions in their own files,
+and then naming them zmod1 zmod2 hoping nobody names any modules starting
+with z.  The linker command usually just happens to be in alphabetical
+order, and or the linker packs them in that order. - ben 24jul97
+
+
+
+
+Special variables are pushed using three slots on the binding stack.  One of
+these is the opcode zero (aka restore special binding).  There are 3 thousand
+lines doing those bindings in TW.  That opcode could be avoided.  First have the
+binding stack default to opcode zero.  Other frames types are then denoted by
+some characteritic of the restore binding entry, say a unique address, that is
+never special bound (i.e. an address in the code segment). -  ben 24jul97.
+
+
+
+
+This code
+  getfq_function_no_default
+    ((x!=NULL)?((Sym *)x)->symbol_plist : symbol_plist_of_nil,prop)
+would be better as:
+  get_function_no_default(x)
+    - ben 24jul97
+
+
+
+
+There are cases where a fixnum declaration makes the code worse.
+These arise in places where the variable is used in combination
+with less declared things: function calls, globals variables that are
+only locally declared fixnum, etc.  and when the cost of the
+operations in the Lisp fixnum representation isn't that much
+less than the cost of sint32 operations.  Of course this is a
+problem that might require significant compuation to find the
+best representation for the variable.  This is an example
+typical of a surpizing number of loops.
+ > (trans '(defun foo (x) (loop for i from 1 to 2 doing (foo i))))
+   Obj foo (Obj x)
+   {
+     sint32 i;
+   
+     i = 1;
+     for (;!(i>2);i = (i+1)) 
+       foo((Obj)((i<<2)+1));
+     return (Obj)NULL;
+   }
+This is another typical of most of the drawing code.
+ > (defvar left-edge)
+ > (defvar right-edge)
+ > (trans '(defun foo (x) (<f left-edge x right-edge)))
+    Obj foo (sint32 x)
+    {
+      Obj temp;
+    
+      if ((((sint32)left_edge)>>2)<x) {
+        temp = ((x<(((sint32)right_edge)>>2)) ? ((Obj)(&T)) : (Obj)NULL);
+        Values_count = 1;
+        return temp;
+      }
+      else {
+        Values_count = 1;
+        return (Obj)NULL;
+      }
+    }
+  - ben 24jul97
+
+
+
+
+The init that sets up the symbols of each package. eg:
+  insert_symbol_into_package(init_symbol((Obj)(&(tw_keydefs_symbols[68])),
+      (Obj)(&str_const_73),331),cached_ab_package);     /* "F35" */
+of which there are 3.5K instances could be compacted in a number of ways.
+to make it both faster and smaller.  The two function calls could
+be one.  The package arg could be a global.  The hash code 331 could
+be hidden in some slot of the uninitialized symbol.  str_const_N of
+the same size could be placed in a table.  
+  - ben 24jul97
+
+
+
+
+Do we know how to add/ignore declarations in Lucid?
+  - ben 29jul97
+
+
+
+I've always wished I could declare lexically that nonlocal
+exit was illegal.  By example:
+  (defmacro with-dirt (() &body body)
+   `(locally (declare disallow-lexical-exit)
+      (dirty)
+      (prog1 ,@body 
+         (clean))))
+I want to be sure clean gets done, at least lexically,
+but if the user does:
+   (block nil (with-dirt (return :mud)))
+he should get a warning.
+  - ben 29jul97
+
+
+
+
+I've always wanted access to a denotation for the
+top level form so I could write warnings in macros
+that mention it.
+  - ben 29jul97
+
+
+pm-print should do something more helpful for wide strings.
+  - ben 29jull97
+(I believe this is fixed now ben 7aug97)
+
+
+
+Fix the bug that the :fill-pointer argument to make-array is essentially
+ignored.  (I.e., the value isn't slammed into the newly made array.)  
+-jallard 7/29/97
+
+
+
+
+Make-wide-string and friends should be changed to use the fill-pointer already
+in (array (unsigned-byte 16)).  -jallard 7/29/97
+
+
+It looks to me as if we have enough info to warn of unused
+C functions, and possibly to automaticly eliminate them.
+Of course a declaration of use might be required for debugging
+functions.
+  - ben 29jul97
+
+
+A function that takes an object and returns some indication of
+it's plausablity as a Lisp object would be a big help in
+the GDB debugging tools.  Such a function might check that
+the object was allocated in with in the address space of
+the process, and that it's header had a reasonable value
+stored in it.  Just for fun it might return the type of
+the object as well.  - ben 7aug97
+
+
+pm-print prints integral floats without a decmal point, bummer.
+  - ben 8aug97
+(I'm taking a stab at that by improving the value returned by
+ pm-type-of, which is used by pm-describe)
+
+

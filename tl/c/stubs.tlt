@@ -1,0 +1,36 @@
+;;;; Module tl/c/stubs.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/stubs.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  NIL
+  ;; Quoted symbols defined in this file.
+  NIL
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T))
+  ;; Defined functions.
+  '((TL:CAR . "car")
+    (TL:CDR . "cdr")
+    (TL:EQ . "eq"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ))
+  ;; Defined variables
+  '((TL::C-NATIVE-CLOCK-TICKS-PER-SECOND . "c_native_clock_ticks_per_second")
+    (TL::DEF-FOREIGN-FUNCTION . "def_foreign_function")
+    (TL::MAXIMUM-BACKTRACE-DEPTH . "maximum_backtrace_depth"))
+  ;; Used class typedefs.
+  NIL
+  )

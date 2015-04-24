@@ -1,0 +1,78 @@
+;;;; Module tl/c/generic-math.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/generic-math.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  NIL
+  ;; Quoted symbols defined in this file.
+  NIL
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::ERROR-THREE-ARGS "error_three_args" FUNCTION (T T T T) NULL)
+    (TL::ERROR-TWO-ARGS "error_two_args" FUNCTION (T T T) NULL)
+    (TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T))
+  ;; Defined functions.
+  '((TL::EXPT-FIXNUM . "expt_fixnum")
+    (TL::FIXNUM-FLOOR . "fixnum_floor")
+    (TL::FIXNUM-FLOOR-FIRST . "fixnum_floor_first")
+    (TL::FIXNUM-OVERFLOW-ERROR . "fixnum_overflow_error")
+    (TL::FTRUNCATE-ONE-ARG-MULT-VALUE . "ftruncate_one_arg_mult_value")
+    (TL::FTRUNCATE-TWO-ARG-MULT-VALUE . "ftruncate_two_arg_mult_value")
+    (TL::GENERIC-ABS . "generic_abs")
+    (TL::GENERIC-CEILING . "generic_ceiling")
+    (TL::GENERIC-CEILING-ONE . "generic_ceiling_one")
+    (TL::GENERIC-DIVIDE . "generic_divide")
+    (TL::GENERIC-EXPT . "generic_expt")
+    (TL::GENERIC-FCEILING . "generic_fceiling")
+    (TL::GENERIC-FCEILING-ONE . "generic_fceiling_one")
+    (TL::GENERIC-FFLOOR . "generic_ffloor")
+    (TL::GENERIC-FFLOOR-ONE . "generic_ffloor_one")
+    (TL::GENERIC-FLOOR . "generic_floor")
+    (TL::GENERIC-FLOOR-ONE . "generic_floor_one")
+    (GENERIC-GREATER-THAN . "generic_greater_than")
+    (GENERIC-GREATER-THAN-OR-EQUAL . "generic_greater_than_or_equal")
+    (GENERIC-LESS-THAN . "generic_less_than")
+    (GENERIC-LESS-THAN-OR-EQUAL . "generic_less_than_or_equal")
+    (GENERIC-MINUS . "generic_minus")
+    (TL::GENERIC-MOD . "generic_mod")
+    (GENERIC-MULTIPLY . "generic_multiply")
+    (TL::GENERIC-NEGATE . "generic_negate")
+    (GENERIC-NUMERIC-EQUAL . "generic_numeric_equal")
+    (GENERIC-NUMERIC-NOT-EQUAL . "generic_numeric_not_equal")
+    (GENERIC-PLUS . "generic_plus")
+    (TL::GENERIC-REM . "generic_rem")
+    (TL::GENERIC-ROUND-ONE . "generic_round_one")
+    (TL::GENERIC-ROUND-ONE-FIRST . "generic_round_one_first")
+    (TL::GENERIC-ROUND-TWO . "generic_round_two")
+    (TL::GENERIC-ROUND-TWO-FIRST . "generic_round_two_first")
+    (TL::GENERIC-TRUNCATE-ONE . "generic_truncate_one")
+    (TL::GENERIC-TRUNCATE-ONE-FIRST . "generic_truncate_one_first")
+    (TL::GENERIC-TRUNCATE-TWO . "generic_truncate_two")
+    (TL::GENERIC-TRUNCATE-TWO-FIRST . "generic_truncate_two_first")
+    (TL::INTEGER-DIVIDE-ERROR . "integer_divide_error")
+    (TL:INTEGER-LENGTH . "integer_length")
+    (TL:ISQRT . "isqrt")
+    (TL:LOGCOUNT . "logcount")
+    (TL::MATH-ONE-ARG-TYPE-ERROR . "math_one_arg_type_error")
+    (TL::MATH-TYPE-ERROR . "math_type_error")
+    (TL:MOD-FIXNUMS . "mod_fixnums")
+    (TL:MOD-FLOAT . "mod_float"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ))
+  ;; Defined variables
+  NIL
+  ;; Used class typedefs.
+  NIL
+  )

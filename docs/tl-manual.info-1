@@ -1,0 +1,593 @@
+This is tl-manual.info, produced by makeinfo version 4.0 from
+tl-manual.texinfo.
+
+   The rationale and associated descriptions of ThinLisp, a Lisp-to-C
+translator for real time applications and anything that shouldn't be
+fat and slow.
+
+   Copyright (c) 1999-2001 The ThinLisp Group
+
+
+File: tl-manual.info,  Node: Top,  Next: Acknowledgements,  Prev: (dir),  Up: (dir)
+
+* Menu:
+
+* Acknowledgements::            Our Debts
+* Preface::                     What is ThinLisp?
+* Rant::                        What Possessed Us to Make ThinLisp
+* Original-Notes::
+* Memory::                      Type Tags, Memory Layout
+* Original-Introduction::       Rant, circa 1995
+* Required-Symbols::
+* Index::                       Small, but growing.
+
+
+File: tl-manual.info,  Node: Acknowledgements,  Next: Preface,  Prev: Top,  Up: Top
+
+Acknowledgements
+****************
+
+   ThinLisp was begun in 1995 as a late night project born of the
+frustration of attempting to ship commercial quality software products
+written in Lisp.  Four years later I'm still obsessed by the issues
+that drove me to it in the first place -- practical use of high level
+languages to implement complex applications while achieving the
+performance that seems easy when using languages that are semantically
+"close to the silicon".  Hopefully this implementation will lead to
+some useful insights towards that goal.
+
+   Thanks to Ben Hyde for convincing Gensym and myself that this system
+should be taken off the shelf, polished up, and released as open source
+software.  Mike Colena and Glen Iba wrote significant parts of the
+implementation.  Nick Caruso, Joe Devlin, Rick Harris, and John
+Hodgkinson and also contributed their time, sage opinions, and code.
+Thanks to Lowell Hawkinson, Jim Pepe, and Dave Riddell for their
+support of this work at Gensym Corporation.  Bill Brody, Kim Barrett,
+and Rick Harris wrote much of the Chestnut Lisp to C translator that
+was the philosophical precursor to this work.  Thanks to Kim Barrett
+and David Sotkowitz of IS Robotics, Inc. (now iRobot Corporation) for
+contributions of multiple-inheritance code and opinions, and to Rod
+Brooks and Dave Barrett for their ideas.  Finally, thanks to my wife,
+Gerry Zipser, for putting up with the bleary-eyed aftermath of coding
+sessions, and for helping to focus efforts during this past summer's
+release push.
+
+Jim Allard
+Newton, Massachusetts
+October 6, 1999 and again May 9, 2001
+
+
+File: tl-manual.info,  Node: Preface,  Next: Rant,  Prev: Acknowledgements,  Up: Top
+
+Preface
+*******
+
+   ThinLisp is an open source Lisp to C translator for delivering
+commercial quality, Lisp-based applications.  It implements a subset of
+Common Lisp with extensions.  ThinLisp itself is written in Common
+Lisp, and so must run on top of an underlying Common Lisp
+implementation such as Allegro, MCL, or CMU Lisp.  The C code resulting
+from a translation can then be independently compiled to produce a
+small, efficient executable image.
+
+   Originally designed for real-time control applications, ThinLisp is
+not a traditional Lisp environment.  It purposefully does not contain a
+garbage collector.  ThinLisp produces compile time warnings for uses of
+inherently slow Lisp operations, for consing operations, and for code
+that cannot be optimized due to a lack of sufficient type declarations.
+These warnings can be suppressed by improving the code, or through use
+of lexical declarations acknowledging that the code is only of
+prototype quality.  Code meeting the stringent requirements imposed by
+ThinLisp cannot by sped up by rewriting it in C.
+
+   The ThinLisp home is <http://www.thinlisp.org/>.  The newest source
+distributions of TL and this manual can be found here.  Bugs should be
+reported to <bugs@thinlisp.org>.
+
+
+File: tl-manual.info,  Node: Rant,  Next: Original-Notes,  Prev: Preface,  Up: Top
+
+Rant
+****
+
+My Excuse for Ranting
+=====================
+
+   I've imagined the reactions people will have when they see that
+there is yet another Lisp to C translator implementation being
+released.  Mostly I've expected that people would think I'm stark
+raving mad to engage in a large work, to serve an almost non-existent
+user base of programmers in a language that is largely discredited
+while being actively antagonistic towards many of the design principles
+this language has employed for decades.  Since I'm expecting that
+people will think I'm mad (and half believing it myself), I then feel
+entitled (even obligated) to engage in a rant to explain the
+motivations of such a curious endeavor.  Please excuse this indulgence
+and look charitably upon it as a form of self-therapy.
+
+Lisp Background
+===============
+
+   More than fifteen years ago I was in a recitation session of an
+Introduction to Artificial Intelligence course.  The lecturer, Patrick
+Winston, had come in for a session on automated planning.  At one point
+I asked a question about how a certain situation might be handled in
+the system we were studying, and he answered that it couldn't be
+handled in that system and that solving that problem was a research
+topic.  The fact that problems as simple (so I thought at the time) as
+what we were describing were research, and that as a sophomore in
+college I could grasp them seemed amazing to me then, as it still does
+now.  On the spot I could imagine six different ways to attack that
+problem, and none of them felt any less plausible than some of the
+established techniques that we were studying.  I was hooked.
+
+   At the time, this sort of optimism and arrogance about the immediacy
+and inevitability of technical success in AI was rampant.  The
+convergence of breakthroughs in techniques, tools, and venture capital
+money that flowed like wine was intoxicating for everyone.
+
+   No one thought this work would be trivial, so the best software
+development tools available would be required.  And of course the best
+tools from the perspective of the AI community included the language
+that this community had been developing since the late 1950's, Lisp.
+
+   Originally, Lisp was developed as an experiment in providing a
+direct means of implementing lambda calculus, where operations were
+first class objects that could be manipulated in the same manner as
+data.  The presumption behind many of the Lisp design choices was that
+the most important goal was to maximize a programmer's productivity in
+developing new functionality by enabling the purest form possible of
+coded solutions, and so to hide as many of the platform specific
+details as possible.  In the ongoing evolution of Lips, considerations
+of the efficiency of processing speed and memory use came in a distant
+second to programmer convenience and to the attempt to protect the
+programmer from bugs caused by mathematically abhorrent behaviors such
+as integer wraparound.
+
+   Perhaps because of this devotion to developer productivity; perhaps
+because of the synergy between language syntax, parsing, and data;
+perhaps because of the invention of the Lisp macro facility; or perhaps
+because it was invented down the hall, Lisp became the language of
+choice for research and experimentation in new programming constructs
+(at least at MIT).  Many of the different possible approaches to object
+oriented programming were first tried out in Lisp.  Examples are
+multiple inheritance, multi-methods, prototype-based object systems,
+and automatic method combination via whoppers, wrappers, before, and
+after methods.  Other innovations experimented with in Lisp are error
+handling systems, multi-platform file naming approaches, and guaranteed
+execution of clean-up code (i.e.  unwind-protect).
+
+   In 1984 a group formed to attempt to unify as many of the best
+features of different Lisp dialects as possible into one central
+standard.  From this effort came the excellent books `Common Lisp, The
+Language' by Guy Steele and it's second edition, which incorporated
+many of the changes that would eventually be codified into ANSI Common
+Lisp.  This is the dialect that dominates Lisp work today, at least in
+the U.S.
+
+Lisp in Action
+==============
+
+   In any case, throughout the 1980's the bulk of the research labs and
+companies that attempted to commerciallize AI technologies used Common
+Lisp to implement their products.  The most broadly deployed AI-based
+technique was expert systems, also called rule-based systems.  (1)
+Early results were encouraging.  In the lab, sometimes on specialized
+hardware, the software engineers were able to demonstrate the
+beginnings of the functionality that they were promising.
+
+   However, when it came to deploying these systems, things didn't turn
+out so smoothly.  Most software products of that era were coded in
+languages such as Fortran, Cobol, Pascal, C, and assembly language.  It
+turned out that Software developers who could breathe fire in Lisp were
+clumsy, inefficient, or flatly unwilling to port their systems to these
+traditional languages.
+
+   Customers were loathe to buy expensive, special purpose hardware for
+these applications while cheap, ever more powerful PC computers were
+rolling out.  During this period the workstation class computer was
+also coming on, with initial excellent products coming from from Sun
+and Apollo.  Stories about the difficulties in rolling out applications
+are rife throughout the industry, but I'll speak to just the cases I
+personally was involved in.  While the presence of Lisp as the basis of
+these software systems cannot be fully blamed for their success or
+failure, in all cases it was a controversial and high-visibility part
+of the system.
+
+   The Mentor system for preventative maintenance was a success story.
+A group at Honeywell made a forward-chaining, rule-based system that
+helped novice technicians perform preventative maintenance on
+centrifigal chillers, essentially large air-conditioning units found in
+office buildings.  Honeywell had a significant business in maintenance
+services for traditional compressor-based chillers, but it lacked
+trained personnel to go after this new and lucrative service market.  A
+corporate research lab made a Lisp-based implementation of a run-time
+environment for Mentor that ran on a ruggedized Grid laptop computer.
+While the system was useful, it ran sluggishly and the Lisp-based
+implementation left little room on the laptop for the system to grow
+and improve.  A technology transfer project was begun which resulted in
+a software engineer within the service division rewriting the
+application in C, greatly improving its speed and reducing its size,
+allowing the system to be expanded into a commercially viable tool.  As
+far as I know, this system is still in use.
+
+   In this system, Lisp served a very useful purpose as a prototyping
+language, but a critical element in the success of the project was to
+abandon the original implementation and rewrite it in C.  This was
+necessary for the commercial division that deployed this product, first
+to gain acceptance, and second to enable that division to maintain the
+system with the personnel they had working there.  The rewrite also
+sped up the application and greatly reduced its run-time size.
+
+   The Cooker system was a real-time supervisory level monitoring
+system also built at Honeywell which was intended to be used in process
+control plants.  It was implemented on a Symbolics 3640 which was
+deployed to a paper mill in Pennsylvania.  Though care had been taken
+to tailor memory use such that a generational garbage collector would
+efficiently reclaim the vast majority of discarded memory, every 6
+weeks or so a hemisphere flip would occur (i.e. a big garbage
+collection), during which the system could not maintain adequate
+real-time performance for several hours.  After the third time that this
+happened, the plant crew turned off the system and never restarted it
+again.
+
+   In this case, the system was gaining acceptance by the pilot users,
+but as a direct consequence of the performance problems caused by
+garbage collection this pilot project was closed out, and this
+particular deployment approach was dropped.  A different
+
+   The G2 system is a real-time supervisory level control system built
+by Gensym Corporation.  It's source code was written in Lisp, and for
+approximately 3 years was released as a world-saved image made from
+Lucid Lisp environments on UNIX workstation class machines.  In 1990,
+Gensym ported its system to Ibuki Common Lisp, which was a Lisp-to-C
+translator descended from Kyoto Common Lisp.  By translating to C and
+discarding those parts of Common Lisp that we didn't use, we were able
+to decrease the size of our shipped product by 25%, a fact that was
+greatly appreciated by a customer base tired of constantly having to
+buy more memory for computers.  In 1993 Gensym changed again to a
+different Lisp to C translator made by Chestnut Software.  This
+produced an additional 40% decrease in size, and a significant
+improvement in performance.  The ThinLisp translator is a philosophical
+descendent of the Chestnut translator, though ThinLisp was written from
+scratch.  One of the factors cited by the head of sales of G2 was that
+once we used a Lisp to C translator, he could say that the product was
+"deployed in C", thereby side-stepping the Lisp issue, which had been a
+significant downside to our system in the eyes of many potential
+customers.
+
+   Here Lisp was a competative advantage for development, but became a
+sales liability due to the poor reputation of Lisp-based applications
+in the marketplace.  Once the organization switched to a Lisp-to-C
+translator, then development could continue to see the advantages of
+Lisp coding, but marketing could bury that detail, avoid a defensive
+technical argument that was proving a barrier to closing sales, and
+continue to focus on the product's positive benefits.
+
+   The Bore Rat is an autonomous robotic device that travels through
+the piping installed in oil wells.  Built by IS Robotics, it is capable
+of traveling 2 miles straight down into a well, perform maintenance and
+data logging tasks, and then return to the surface, all under its own
+power and control.  The software for this system was written in L, a
+Lisp subset made for embedded processors, in this case a Motorola
+68376.  The first prototypes of the BoreRat became operational in 1999
+and are currently being marketed to the oil field services industry by
+IIC.  In this case Lisp was not a significant factor, either in a
+positive or a negative sense.
+
+   During this time, Lisp has waned in its influence.  Java has
+replaced Lisp in many places, the number of Lisp vendors has dropped,
+and Lisp is being taught in fewer college courses.  The future of
+traditional Common Lisp is in doubt, though it is still strong in a few
+niches, and deep within a few specific applications, such as Yahoo
+Store.
+
+   As a result of these experiences, and as an outcropping of my
+experience using Lisp to implement real-time control systems, I've
+wanted to have a Lisp environment that provided the features that I
+liked, such as macros for control structure abstractions, that had
+outstanding performance characteristics given proper type declarations,
+and which remained small and lean.  ThinLisp is an embodiment of that
+environment.
+
+Scientists, Mathematicians, and Engineers (oh my!)
+==================================================
+
+   I have been fascinated (and occasionally amused) by the nearly
+religious arguments about the merits of various computer languages.
+Beyond the pure merits of the systems being discussed there seemed to
+be lurking a difference in philosophy about how to go about programming
+that colored these discussions.  This section is an attempt to expose a
+theory about that underpinning.  In the end, this discussion also helps
+me explain why I've made the design choices that I have in ThinLisp.
+
+   From the beginning Lisp was a mathematician's language.  To
+understand what I mean by this, I must explain one view of the
+differences between the goals of scientists, mathematicians, and
+engineers.  (2)
+
+   The goal of scientists is to learn truths about the world around
+them, using observation, analysis, hypothesis, and experimentation to
+advance and buttress their claims of discovery.  Pure science aspires
+to be unconcerned with the utility or applicability of the information
+they seek.  The ultimate goal is to discover and understand what _is_.
+
+   Mathematicians aspire to an even higher goal -- understanding what
+truths there are or that there might be, regardless of or even entirely
+divorced from the limits of the physical world.  The studies of
+mathematicians are the stuff of pure thought and imagination, yet bound
+by the strictest rules of proof.  To build robust castles in the air
+based on proofs combining into a single monolithic whole requires that
+all pieces must act perfectly in concert.  Therefore the mathematician
+must constantly be vigilant against contradictions between the
+different portions of his whole proof, where one technique carries with
+it constraints which must be respected within all other parts of the
+proof.  With this rigorous technique in hand, the ultimate goal is to
+discover what is _true_.
+
+   On the other hand the goal of the engineer, in the abstract, is to
+bend the behavior of an uncooperative world to his will.  Whether it is
+the stereotypical engineer operating a train, or a civil, acoustic,
+electrical, mechanical, software, or other specialty of engineer, their
+work is to use what is known from science and mathematics, exploiting
+practicality and expediency, to operate or design a physical entity so
+that it performs a specific task, usually with the motivation of the
+almighty dollar.  Within the constraints of the physical world, the
+ultimate goal is to accomplish what is _practical_.
+
+   Within the computer science community, examples of personalities
+suited to each of these different disciplines abound.  Within the the
+small community of computer language designers, the mathematician and
+engineer distinguish themselves through two very different approaches
+to language design.  (3)
+
+Denotational and Operational Semantics
+======================================
+
+   The mathematician espouses _denotational semantics_, where the
+behavior of an operation is determined by what the operation _means_.
+In this style, the goal is to make a complete unified system where each
+element of the language must be intricately coordinated with each other
+part, so that each element can retain its meaning when used in
+conjunction with any other part.  The semantics of each operation are
+primary, and the consequences of the definition of one operation can
+strongly affect the implementation of many other operations.  While the
+behaviors required of any individual operation may become complicated,
+the programmer using such a language can work confident in the
+knowledge that his code may be intermingled in complex ways with
+other's code without fear of each violating the other's assumptions
+about eventual program behavior.  When finished, systems defined along
+these lines make powerful and elegant environments.
+
+   The engineer espouses _operational semantics_, where what each
+operation means is determined by what it _does_.  In this style, the
+goal is to determine the elements of a toolbox and to specify the
+behavior of each, largely independently of any other operation in the
+language.  The definitions of operations stand alone and are designed
+specifically to minimize the interaction between operations.  The
+semantics of each operation are thin, but this allows the programmer to
+work confident of the performance and size of the program being
+generated.  Here one is seldom surprised by the behavior of a line of
+code, and moderately experienced programmers can accurately predict the
+behavior down to enumerating the machine instructions that are likely
+to be executed.
+
+   Most computer languages is use today are exemplars of the
+engineering style, defined with operational semantics in mind.
+Building primarily from the operations that could be implemented on the
+computing devices that could be made at the time, and secondarily on
+the specific computing needs of a user base at hand, languages were
+designed to allow people to command computers to do things.  This quote
+from the preface to `K&R C'(4), the original book describing C,
+explains this style well.
+
+     C is a general-purpose programming language which features economy
+     of expresssion, modern control flow, and data structures, and a
+     rich set of operators.  C is not a "very high level" language, nor
+     a "big" one, and is not specialized to any particular area of
+     application.  But its absence of restrictions and it generality
+     make it more convenient and effective for many tasks than
+     supposedly more powerful languages.
+
+   Typically the operations in these languages are semanticly thin (or
+shallow, if you prefer), to the extent that a programmer of medium
+experience could almost predict the number of machine instructions
+required to carry out any given command in the language.  Fortran,
+Pascal, Basic, and C are all examples of languages in this category,
+with C (and it's derivative, C++) now being the default choice for
+people building big systems.
+
+   Lisp and other languages (such as CLU, Smalltalk, Eiffel, and
+recently Java) were are exemplars of the mathematical style,
+emphasizing denotational semantics.  The operations in these languages
+were defined with semantics that are deep (or fat if you prefer),
+focusing not on what an operation _did_ but on what it _meant_.  Of
+course there had to be implementations of these operations, but the
+actual machine instructions carried out were allowed (even expected) to
+vary widely depending on the manner and situation in which it was used.
+
+   These philosophical differences lead to vastly different languages,
+with the consequences of each style evoking surprise, disbelief, or
+even indignant disgust in ardent followers of the opposing camp.
+Denotational fans can't believe how much of the underlying limitations
+of systems are exposed, and operational fans can't believe how
+disassociated operations are from the machine.  One sees too much
+exposed, and the other sees too much being hidden.
+
+GOTO Right Now, or GOTO When You're Ready
+=========================================
+
+   An example of how this difference in design perspective plays out
+can be found in the behavior of the `goto' statement in C and the `go'
+special operator in Common Lisp.  Consider the following two code
+fragments.
+
+   In C:
+
+     int find_big_int(int *set, int start, int end) {
+       Iterate through the set {
+         if test
+           goto bad;
+           ...
+       }
+      bad:
+       ...
+     }
+
+   In Lisp:
+
+     (defun find-big-int (set start end)
+       (tagbody
+         (Iterate through the set
+           (if test
+             (go bad))
+           ...)
+         bad
+         ...))
+
+   In the C code above, regardless of the surrounding code and
+environments, a user can predict the machine's behavior at the `goto'
+command and what the likely cost is.  In particular, a conditional
+branch instruction will be generated based on the result of the test
+expression, and it will immediately begin executing the code following
+the label `bad'.
+
+   In the Lisp code, though the situation appears similar, the
+resulting behavior may be very different.  If the code that implements
+the "Iterate through the set" element above is a simple `do', then the
+behavior will be very much like what happens in C.  However, if the
+iteration is performed using a mapping function, and the `(go bad)'
+form is contained within an embedded `lambda' form defining a different
+function, then the situation is very different.  Because goto tags have
+lexical scope, even across function boundaries, requires that the `go'
+be able to exit the function it is in and re-enter the outer function
+at the appropriate point.  In this case, entering the `tagbody'
+statement would require establishing a restart point similar to a
+`setjmp', and the `go' would become something similar to a `longjmp'.
+If the iteration contains an `unwind-protect', then cleanup code will
+be executed after the `go' executes, but before the code at the `bad'
+statement.  If the `unwind-protect' clean-up forms contain a go to a
+further surrounding tagbody, then the code after the `bad' tag will
+never be executed.
+
+   In this example, operational prorammers are floored by how
+complicated a simple `goto' statement can become.  Denotational
+programmers are in disbelief that the execution of clean-up code cannot
+be enforced.
+
+* Menu:
+
+* ThinLisp-Compromise::
+
+   ---------- Footnotes ----------
+
+   (1) Of course this is ignoring other, more broadly applicable
+developments, such as multi-tasking operating systems.
+
+   (2) All apologies in advance to my father-in-law Ed (a scientist)
+and my brother-in-law Holger (a mathematician) from me (an engineer).
+
+   (3) In the rest of this discussion, the scientist has gone for
+coffee, uninterested because there is nothing pre-existing to study,
+only new things being spun out of the air.
+
+   (4) `The C Programming Language, Second Edition', by Kernigan, Brian
+W. and Ritchie, Dennis M., Copyright 1988, 1978 by Bell Telephone
+Laboratories, Incorporated Prentice Hall P T R, Englewood Cliffs,
+NewJersey 07632
+
+
+File: tl-manual.info,  Node: ThinLisp-Compromise,  Prev: Rant,  Up: Rant
+
+ThinLisp's Compromises
+======================
+
+   While C++ and Java can be viewed as attempts to move C more towards a
+denotational footing, Thinlisp is an attempt to move Common Lisp more
+towards an operational footing.  I've attempted to lessen the impact of
+Lisp's "gotchas" that frustrate programmers who look at languages from
+an operational semantics point of view.  Attempting to allow the
+benefits of deep denotational semantics while warning of performance
+and behavior surprises is the underlying goal for ThinLisp.
+
+   One of the goals of ThinLisp is to implement the deep semantics of
+Lisp, while offering compile time warnings whenever these semantics
+force behavior that deviates from expectations consistent with
+operational (or "thin") semantics.  If the programmer really intends to
+use the full, deep semantics, then a lexically apparent declaration can
+be used to suppress the warnings and accept the more expensive behavior
+required by the deep semantics.
+
+   There are three main areas where ThinLisp warnings are used to help
+prevent performance gotchas.
+
+   - consing,
+
+   - run-time dispatched operations, and
+
+   - non-local exits.
+
+
+   Within ThinLisp there is no garbage collector.  While many fine
+garbage collection systems exist, and some are truely approaching the
+goal of real-time operation, they all impose significant overhead to
+maintain a root set of objects that form the base of the reference tree
+that is walked during a garbage collect.  ThinLisp avoids the cost of
+the garbage collection and the cost of maintaining the data that makes
+garbage collection possible.
+
+   This means that Lisp programmers must adopt the discipline of the C
+programmer in knowing where memory is allocated and where it is
+reclaimed.  Because this is such a foreign concept to Lisp programming
+style, automated help is required to protect Lisp programmers from
+careless consing.  It is a well known maxim that Lisp programmers
+looking to improve performance should avoid consing, however very few
+Lisp programmers are good at it.  Within ThinLisp there is a concept of
+both lexical and dynamic scopes that supply consing contexts.  At
+compile time any consing operation must have a `consing-area'
+declaration lexically surrounding its scope, or else a compile time
+warning is given.  The `consing-area' can either be `permanent' or
+`temporary'.  (1) A `permanent' area means consing proceeds as normal,
+with all created objects having dynamic extent.  However, whenever
+consing happens within a `temporary' scope, then the object's lifetime
+only has dynamic scope back to the exit point of the `temporary'
+`consing-area'.  The `consing-area' declaration is similar to the
+`dynamic-extent' declaration, but it is pervasive instead of applying
+to a particular variable binding.
+
+   ThinLisp warns about run-time dispatched operations which could be
+made more efficient with type declarations.  In some cases, the
+run-time polymorphism of an operation is exactly what is desired, and
+then there are declarations that can be used to suppress these
+warnings.  It is well known that type declarations can improve the
+performance of some Lisp operations, however it is very difficult in
+practice to acquire these optimizations without some warnings and
+assistance from the compiler.  The assumption in building the ThinLisp
+translator is that you are attempting to make production quality code,
+and therefore want advice about code that could be hiding a performance
+gotcha.
+
+   Lastly, ThinLisp can issue compile-time warnings about non-local
+exits.  The `unwind-protect' form can guarantee that clean-up code is
+executed on exit from a scope, but it is a very expensive operation do
+to `setjmp' calls establish a reentry point into the function, and the
+need to declare variables `volitile' if they are modified within that
+scope.  There are some macro forms where is it acceptible if an error
+exits a scope without a clean-up, but a normal execution of the body
+form should not leave the scope with a `return-from' form.  In order to
+allow programmers to write macros that have clean-up code without
+resorting to an `unwind-protect' form, ThinLisp provides a
+`require-local-exit' declaration that will cause compile time warnings
+if a scope is left prematurely.  The other kind of non-local exit that
+ThinLisp prevents is `goto' or `return-from' forms that exit a lexical
+closure and re-enter a surrounding function.  These patterns of code are
+tantamount to `catch' and `throw' forms, which are very expensive.  By
+declining to implement this form of non-local exit, we can prevent this
+kind of performance pratfall.
+
+   ---------- Footnotes ----------
+
+   (1) For consing operations that can be called from either context,
+you can declare a consing area of `either', but in practice that is
+fairly rare.
+

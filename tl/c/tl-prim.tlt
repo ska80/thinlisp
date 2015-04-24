@@ -1,0 +1,95 @@
+;;;; Module tl/c/tl-prim.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/tl-prim.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  "tl_tl_prim_symbols"
+  ;; Quoted symbols defined in this file.
+  `(:TL
+    TL:AND
+    TL:OR
+    TL:NOT
+    &OPTIONAL
+    &REST
+    &KEY
+    &AUX
+    &BODY
+    &WHOLE
+    &ALLOW-OTHER-KEYS
+    &ENVIRONMENT)
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T))
+  ;; Defined functions.
+  '((TL:CAAAAR . "caaaar")
+    (TL:CAAADR . "caaadr")
+    (TL:CAAAR . "caaar")
+    (TL:CAADAR . "caadar")
+    (TL:CAADDR . "caaddr")
+    (TL:CAADR . "caadr")
+    (TL:CAAR . "caar")
+    (TL:CADAAR . "cadaar")
+    (TL:CADADR . "cadadr")
+    (TL:CADAR . "cadar")
+    (TL:CADDAR . "caddar")
+    (TL:CADDDR . "cadddr")
+    (TL:CADDR . "caddr")
+    (TL:CADR . "cadr")
+    (TL:CDAAAR . "cdaaar")
+    (TL:CDAADR . "cdaadr")
+    (TL:CDAAR . "cdaar")
+    (TL:CDADAR . "cdadar")
+    (TL:CDADDR . "cdaddr")
+    (TL:CDADR . "cdadr")
+    (TL:CDAR . "cdar")
+    (TL:CDDAAR . "cddaar")
+    (TL:CDDADR . "cddadr")
+    (TL:CDDAR . "cddar")
+    (TL:CDDDAR . "cdddar")
+    (TL:CDDDDR . "cddddr")
+    (TL:CDDDR . "cdddr")
+    (TL:CDDR . "cddr")
+    (TL:EIGHTH . "eighth")
+    (TL:EVAL-FEATURE . "eval_feature")
+    (TL:FIFTH . "fifth")
+    (TL:FIRST . "first")
+    (TL:FOURTH . "fourth")
+    (TL:GET . "get")
+    (TL:GETF . "getf")
+    (TL:LAST . "last")
+    (TL:NINTH . "ninth")
+    (TL:NREVERSE . "nreverse")
+    (TL:REST . "rest")
+    (TL:REVERSE . "reverse")
+    (TL::REVERSE-LIST . "reverse_list")
+    (TL::REVERSE-STRING . "reverse_string")
+    (TL:SECOND . "second")
+    (TL::SET-GET . "set_get")
+    (TL:SEVENTH . "seventh")
+    (TL:SIXTH . "sixth")
+    (TL:TENTH . "tenth")
+    (TL:THIRD . "third"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ)
+    (SYMBOL-PLIST-OF-NIL "symbol_plist_of_nil" . OBJ))
+  ;; Defined variables
+  '((* . "S")
+    (*FEATURES* . "SfeaturesS")
+    (TL:ALL-SYSTEMS . "all_systems")
+    (TL:CURRENT-SYSTEM-BEING-LOADED . "current_system_being_loaded")
+    (TL:LAMBDA-LIST-KEYWORDS . "lambda_list_keywords"))
+  ;; Used class typedefs.
+  NIL
+  )

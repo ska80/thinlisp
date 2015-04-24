@@ -1,0 +1,31 @@
+1.0.1
+
+The first line of this file should contain the version number for ThinLisp.
+This is used when creating the names for distribution tarballs and zip files.
+This version number must also be updated by hand within docs/tl-manual.texinfo
+and within the function LISP-IMPLEMENTATION-VERSION in tl/lisp/tl-basics.lisp
+before you make the release.
+
+To issue a new release, update the version numbers as described above, tag the
+sources with the new version using a tag of the following form.
+
+  TL-<version-using-only-hyphens>-BASE
+
+To tag the sources, check out the appropriate versions of all of the files that
+you want included in the release (usually this means the head versions of all
+files), and then run the following command.
+
+  cvs tag TL-<version>-BASE
+
+The base tag is made so that a branch can be made off of this tag later if there
+is a need to issue a patch to this release.  From within the src directory of a
+checked out source repository, run the following command to create a new
+exported src directory.
+
+  cvs export -r TL-<version>-BASE -d src thinlisp-1.0/src
+
+Then run a "make distribution" to make a new directory called "dist" within the
+sandbox src directory.  The dist directory will contain the files for a new
+distribution of a ThinLisp release.  Once done copying those files to your
+release site, you'll need to delete the dist and thinlisp-* directories created
+by this process.

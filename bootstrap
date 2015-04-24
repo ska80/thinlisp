@@ -1,0 +1,37 @@
+#!/bin/sh
+
+### A script to compile those parts of the system
+### that have changed since last time.
+
+if [ -x /usr/local/bin/clisp ] ; then
+  clisp -x "(load \"boot.lisp\")"
+else
+
+  # Invoke our lisp in batch mode (tested in: CMU Lisp)
+  lisp -batch <<EOF
+
+;;; All this just keeps this batch job from
+;;; trying to fall back on the debugger.
+;;; Note you still can end up in the debugger if
+;;; you interupt while CMU Lisp is loading it's
+;;; patches, and you need the ir1tran.x86f patch.
+(defun bail-on-debug (c e)
+  (declare (ignore e))
+  (format t "; Error in bootstrapping:~A~&---Exiting...~&" c)
+  (ext:quit))
+(setq *debugger-hook* 'bail-on-debug)
+
+;;; If you were doing this by hand you'd just do this:
+(load "boot")
+
+;;; Later you probably do this:
+(ext:quit)
+
+
+EOF
+
+fi
+
+### Notes: 
+###  This does not do a full recompile.
+###  This is invoked by the toplevel makefile.

@@ -1,0 +1,885 @@
+This is tl-manual.info, produced by makeinfo version 4.0 from
+tl-manual.texinfo.
+
+   The rationale and associated descriptions of ThinLisp, a Lisp-to-C
+translator for real time applications and anything that shouldn't be
+fat and slow.
+
+   Copyright (c) 1999-2001 The ThinLisp Group
+
+
+File: tl-manual.info,  Node: Original-Notes,  Next: Memory,  Prev: Rant,  Up: Top
+
+Original Design Notes
+*********************
+
+   The following were the original design notes about what should be
+built into GL, which became ThinLisp.  -jallard 10/12/99
+
+Def-System
+==========
+
+   In order to get the flexibility that we want with this development
+environment, a def- system implementation will be built-in to GL.  This
+is necessary to get the desired layering of libraries and to enable
+identification of call-trees, module interdependencies, and dead-code.
+
+   The base system will be GL.  It will contain only the smallest set of
+primitives possible, though this is still a substantial set.  Support
+for all defining forms and special forms must be built here.  There
+will several systems that implement portions of Common Lisp that we
+think may not be necessary for all products we intend to build in Lisp.
+These should include many of the utilities that we currently have in
+G2 to replace consing versions of the same from Common Lisp.  For
+example, the gensym-pathnames and gensym- streams code should be made
+into a separate file-io system that may or may not be included into
+products (G2 and TW need it, GSI does not).
+
+   Within the Def-system for a group of files there should be a flag
+indicating whether or not this set of files is to be distributed as a
+library or an executable.  If it is a library, the def-system should
+include (or there should be a separate form for declaring) those
+functions that are called by users of the library, and the def-system
+should also include (or there should be a separate form for declaring)
+those call-back functions provided by users of the library that the
+internals of the library will call (this is the GSI call out case).
+Foreign functions should be handled as they are now using the def-
+gensym-c-function form.
+
+Overview of Translations
+========================
+
+   There are four different modes in which GL (Gensym Lisp, oops, er,
+Language) source code will need to be processed, two Lisp compilation
+modes and two translation modes.  The first is development compilation
+in an underlying Lisp environment.  The second is a macro definition
+compilation to define macros in preparation for a translation.  These
+are otherwise unremarkable uses of the underlying Lisp implementations
+compile-file and load functions, distinguished only by what we do with
+the :development and :distribution compiler switches.  The third is a
+translation pre-process step in which the names and data types of
+variables and functions are determined.  The fourth and final is a
+translation mode in which C files and H files are generated.
+
+   The translator from GL to C will be written to make as few
+dependencies as possible on the implementation it is layered on top of.
+(As this is being written Lucid has gone bankrupt and been acquired by
+Harlequin and Apple is dumping off MCL to a third party to support.)
+In order to keep things portable we will implement our own
+macro-expander to avoid the problem of differences in macro-expansion
+environment representations.  Those Lisp functions whose argument lists
+are more complex than positional and optional arguments will be
+implemented as macros.  These macros will expand into functions with
+fixed and optional arguments.  We will write all of our own macro
+implementations of all non- function Lisp primitives so that we can
+control the base set of functions and special forms that these
+macro-expansions will bottom out within in a portable way.  All of
+these base functions that the translator natively supports will be
+implemented in the Lisp development environment so that the development
+environment execution will be as similar as possible to the final C
+execution, but those facilities that are required to come directly from
+the underlying Lisp during development (e.g. special forms) will be had
+through conditional macro-expansion that uses the underlying Lisp.  For
+example, a call to gl:list with 5 arguments will always macro-expand
+into calls to the gli::list-5 function.  However, calls to gl:catch
+will expand to gli::catch while translating and will expand into
+lisp:catch during development.  The special-form gl:the will expand
+such that it performs type checking at development run-time and type
+declared local variables will at least have their initial values
+type-checked. All reasonable effort will be made to avoid redundant
+run-time checks in development.
+
+   A Lisp function fragment illustrating the outermost loop of a
+translation is as follows.  The actual implementation will need further
+complications, such as recompile arguments.
+
+     (defun translate-system (system)
+       (loop for used-system in (system-used-systems system) do
+         (load-system used-system :binaries t :gl-preprocess-info t
+                      :gl-trans-info t))
+       (loop for file in (system-files system) do
+         (when (binary-out-of-date-p file)
+           (compile-file file))
+         (unless (binary-loaded-p file)
+           (load-binary file))
+         (when (gl-preprocessed-date-out-of-date-p file)
+           (gl-preprocess file))
+         (unless (gl-preprocessed-data-loaded-p file)
+           (load-gl-preprocessed-data file)))
+       (loop for file in (system-files system) do
+         (when (or (gl-trans-data-out-of-date-p file)
+                   (gl-c-file-out-of-date-p file)
+                   (gl-h-file-out-of-date-p file)
+                   (progn (load-gl-trans-data file)
+                          (gl-trans-data-indicates-retranslate-p file)))
+           (gl-translate-file file)))
+       (gl-dump-makefile-information system))
+
+Compilation Passes
+==================
+
+   The development compilation pass can be detected by the :development
+switch in *features*.  The macro compilation pass has no significant
+*features* included. The pre-process translation pass and the
+translation pass can be detected with the :translator and :no- macro
+switches in *features*.  Note that the pre-process pass may be
+interleaved with the macro pass (i.e. we may macro compile then
+pre-process each Lisp file in turn), but these features can still be
+reliably used to detect the difference.  Also note that we will likely
+want to perform development translations which will produce images with
+full runtime type checking, which could be detected by having both
+:translator and :development available at the same time.  This may be
+difficult, since the :development switch has often been confounded with
+dependencies on Lisp development environment (i.e. :lucid and formerly
+:lispm) switches.  An alternative but inferior approach would be to use
+a different switch to control translator type-safety checks.
+
+Pre-Process Compilation Pass
+============================
+
+   The pre-process pass is used to gather information about the
+following: function name, argument types, and return types needed to
+translate calls to this function; and variable data types needed to
+compile fetch and set references.  This information must be gathered
+before translation begins on any files, since Lisp generally allows
+forward references to as-yet undefined functions and variables.  This
+pass over each file must occur after that file has been compiled (if
+necessary) and loaded during the macro compilation pass.  (Consider
+collecting this information during the macro-expansion of gl:defun,
+gl:defvar, etc. macros.)  During this pass all top-level forms in a
+file are read and macro expansion proceeds on each form only far enough
+so that top level defining forms can be examined and their types
+determined.  Normally this would only be far enough to example declare
+statements on functions and global declaim statements.  In practice, we
+may also attempt to perform limited macro-expansion on the bodies of
+functions that do not contain argument and return value type
+specifications in order to determine stricter typing information, but
+I'm expecting that this may be too time-consuming to do without some
+limitations, for example stopping after 100 calls to gl-macroexpand-1.
+
+   The gathered information will be stored in properties of symbols and
+will also be written out into a .glp file (GL pre-process, a Lisp
+syntax file suitable for processing with load, written into the macro
+directory next to the binary) for each .lisp file pre- processed.  This
+enables us to reload the .glp file during subsequent pre-processing in
+which the source Lisp file has not changed.
+
+Translation Compilation Pass
+============================
+
+   The translate pass is finally used to read source Lisp files and
+translate their contents into C and H sources files.  Besides the
+translated functions and variables, each C file will also contain an
+init function, which will allocate code constants needed by the
+translated functions and perform the operations called for by the
+top-level forms of the translated file.  Some constants will be
+globally shared, such as compiled-function objects and symbols.  At the
+end of each translation, a .glt file (GL translation data) will also be
+written out containing information about which globally optimized
+constants are used, which of those are initialized within a translated
+file, and which functions and variables are referenced with what type
+signatures.  This is needed for later incremental translations.  During
+these later translations it may be necessary to retranslate due to
+changes in prior initialization of globally shared constants, such as
+when a symbol is no longer initialized in a prior file, and so must be
+initialized in this file.  Similarly, when translating calls to
+functions, information about the type signature of the called function
+is used to translate the call site.  If the type signature of a
+function changes, that will force a retranslate of files containing
+calls. Lastly, we have always been concerned about changes to Lisp
+macros being propagated to all callers.  If during translations we keep
+track of which macros are called and keep a checksum of the compilation
+of its macro-function, we may be able to compare the checksums of later
+translations and automatically determine when retranslates must be
+performed.
+
+Packages
+========
+
+   Packages should be designed as follows.  The AB package should now
+use the GL package to get all of its underlying Lisp implementation
+symbols.  The GL package will not use any other package and it will
+export all GL symbols that we use.  The translator functions will be
+available at translation time through the GLT package, and the
+translator itself will be written within the GLI (GL Internals)
+package.  During development, some GL symbols will have been imported
+from the Lisp package, but at runtime there will be no Lisp package,
+only GL.
+
+   During runtime, the AB and GL packages will be available, but the
+GLT and GLI packages will be absent.  Note that it is currently my
+intent to have fully reclaimable package and symbol structures so that
+new packages using the AB package can be created at runtime and symbols
+removed from packages using the unintern function will in fact be
+reclaimed as they are uninterned.
+
+   There is support in the symbol data structures for importing, but
+that will not be used at this time.
+
+Stacks
+======
+
+   A global Obj_stack and Obj_stack_top will be maintained for holding
+shadowed values of global variables and setjmp environments for catch
+and unwind_protect scopes.  The stack needs to be structured so that it
+can be searched from the top down towards the bottom finding catch tags
+for throws, unwind_protect scopes to execute, values to reinstate back
+into global variables, and multiple_value sets to reinstate back into
+the multiple_values_buffer.  Each function that pushes values onto the
+stack must reset the Obj_stack_top back to it's original value before
+exiting.  Catch and unwind_protect locations must cache the
+Obj_stack_top value available on entry to their scope and be prepared
+to restore it.  When throws are performed, stack unwinding will
+determine appropriate catch locations for throws, restore global
+variable values whose binding scopes are exited, and execute
+unwind-protect cleanup forms.
+
+Global Variable Binding
+=======================
+
+   Bindings of global variables will be handled as follows.  The
+current value of the global will be stored in a local lexical variable
+of the binding function and also will be pushed onto the Obj_stack.
+Next a pointer to the value cell of the bound variable is pushed onto
+the stack, and finally the keyword :global-binding is pushed.  The
+global variable is then set to its new bound value.  If a normal
+lexical exit is made from the scope of the binding, then the global
+variable's old value is restored from the location in the local lexical
+variable of the binding function and the three values are popped off
+the stack by decrementing Obj_stack_top by 3 words.  If a non-local
+exit is made from this scope, then unwind_obj_stack will recognize the
+keyword :global-binding and restore the value into the symbol-value
+cell pointed to on the stack.
+
+Unwind-Protect Scopes
+=====================
+
+   On entry to an unwind protect scope, a call to setjmp is made with a
+jmp_buf environment in order to save this location within the C calling
+stack.  This jmp_buf (which is a pointer, see "C, A Reference Manual,
+3rd Edition" by Harbison and Steele, p. 352) is pushed onto the
+Obj_stack, then the keyword :unwind-protect.  Any unwind scopes will
+then perform a longjmp to this jmp_buf as the stack is unwound.  After
+performing the cleanup forms, unwinding should then continue in this
+case by performing another longjmp to the next unwind location on the
+stack, or to the target catch tag if no further cleanups are needed.
+On a normal exit from this scope, Obj_stack may merely be decremented,
+abandoning this cleanup on the stack.  Note that all local lexical
+variables in scope around the unwind-protect must be declared volatile
+in the translation.
+
+Catch and Throw
+===============
+
+   On entry to a catch form, a setjmp is performed with a jmp_buff
+environment.  This jmp_buf, the catch value, and the keyword :catch are
+then pushed onto the stack.  If a throw is performed, then a longjmp
+will be executed with the appropriate values held in the
+Multiple_values_buffer.  The receiver of values from the catch form
+then may or may not unpack values from that buffer.  Note that all
+local lexical variables in scope on entry to the catch form should be
+declared volatile in the translation.
+
+Multiple Values
+===============
+
+   Within locations where the source and receiver of values are
+mutually visible, then all single valued expressions will be handled as
+C expressions, and all multiple valued expressions will be handled with
+a series of setqs into gensymed variables.  However, translations of
+locations where the source of values is a function of unknown type
+signature or where multiple values are returned to an unknown receiving
+location, then a general protocol of multiple values will be used.  In
+these cases, multiple values will be handled with a global
+Multiple_values_buffer and Multiple_values_count.  The first Lisp value
+will always be returned as a normal C expression or function value,
+with any secondary values being placed into the Multiple-values-buffer.
+If no values are returned, then the values count will be set to 0 and
+NIL is returned, which is the default value when receiving more values
+than are supplied.  Sites receiving only the first value may use the
+value of the C expression.  Sites receiving more one value must check
+the C values count, retrieving values from the Multiple_values_buffer,
+or NIL if more values are desired than are supplied.  In
+multiple-value-prog1, catch, or unwind-protect cases, then a protocol
+will be supplied which enables all values being returned to be cached
+onto the global Obj stack.  After all cleanup forms in the
+multiple-value-prog1, catch, or unwind- protect have been executed,
+then the cached values should be popped off the stack and back into the
+multiple-values-buffer.
+
+Constants
+=========
+
+   Constant values of type char, sint32, fixnum, and double will be
+translated into inline C constants.  The sint32 and fixnum constants
+should be able to be emitted without a trailing “L” (as opposed to
+current practice) since we will not be using the AlphaOSF long type,
+and so we expect to not be subject to the preprocessor type conversion
+bug that led us to adopt the “L” integer suffix rule.
+
+   Constants of type string, symbol, and compiled-function will be
+implemented using initialized C struct variables, and these will be
+constant folded across all translated C files.  Translated Lisp
+references to these constants will actually be references to the
+address of these C variables.  For string constants, typedefs will be
+emitted into the C files for string structures containing differing
+lengths of string.  Where the initial value of a string constant is
+longer than 80 characters, the initial characters of the string will be
+initialized using the array variable initialization format instead of
+the normal string constant approach.  This eliminates the long lines
+that break some compilers (e.g. VAX C).  Variables for strings should
+be declared as "const".  Symbol and compiled- function variables cannot
+be declared const, since they must be modified during initialization to
+intern symbols, install compiled-functions in symbols, and install
+pointers to C functions in compiled-functions.
+
+   The number of external symbols needed within individual C files is a
+concern, since we have seen this be a link time limitation on some
+systems.  If this is the case, then we can still achieve global
+constant folding within a translated system by using an approach where
+the pointers to constants are installed into a single large constant
+vector, with indices into this vector used to fetch the addresses of
+initialized constants.  This approach requires a more complicated
+scheme for use of constant vector indices that I would like, but it can
+be handled without causing frequent recompiles of users of constants by
+reserving indices and only renumbering constant indices on declared
+retranslates of a system.
+
+Streams
+=======
+
+   I'm hoping that most support for Common Lisp streams can be avoided
+in the first implementation of the translator.  We already have an
+implementation for complex formatting, and so I expect that the only
+need for streams will be to print to standard output.
+
+Variables
+=========
+
+   Global Lisp variables and parameters will generally be represented
+as C variables of types Obj, sint32, and double.  These C variables
+will represent the symbol-value cell of the actual Lisp symbol.  In
+cases where the Lisp symbol for a global variable also exists, the
+symbol-value cell of that symbol will be a pointer to the C variable's
+location, and the local_value bit of the symbol will contain 0.  In
+cases where there is a Lisp symbol for a C variable, the C variable
+will always be of type Obj.
+
+Functions
+=========
+
+   Each Lisp function will be implemented as a C function.  The C
+function will accept positional arguments for all required and optional
+arguments of the Lisp function.  Keyword and rest arguments are not
+supported at runtime, though we may provide support for keywords on
+functions as long as no attempt is made to generate a compiled-function
+object for that function (a prerequisite to funcalling).
+
+Translator Data Structures
+==========================
+
+   The following sections present designs for the data structures and
+functions required in Lisp for the translator.  They are presented in
+no particular order, other than being fairly bottom up.  The translator
+will make use of defstruct for all structures.
+
+C Name Spaces
+=============
+
+   A part of translating is determining the C identifiers to be used to
+represent Lisp symbols within the translated files.  A C namespace
+structure will be used to represent each of the layers of C namespaces;
+global scope, file scope, and function scope.  C namespaces keep
+hashtables relating C identifiers delcared within a scope to short
+descriptions.  The descriptions will be lists whose first value is one
+of the symbols function, variable, macro, or reserved.  For variables
+and functions, there is a second element in the list which is a string
+containing the appropriate extern declaration to declare the type of
+that identifier.
+
+     (defstruct (c-namespace
+                  (:constructor make-c-namespace (surrounding-c-namespace?)))
+       (local-identifiers (make-hash-table :test #'equal :size 1000))
+       (surrounding-c-namespace? nil))
+
+   There will be a global C namespace that contains all built in
+identifiers and reserved words of C.  This set will be determined by
+numbly entering all identifiers listed in the index on pages 385
+through 392 of Harbison and Steele, all identifers built-in to GL in
+the hand-written C code, and any POSIX identifiers we use.  Omissions
+in this list will show up as multiple definitions or improper links
+only if Lisp symbols are made that happen to collide with the C
+versions.  In all cases, errors of this form should be able to be fixed
+up by adding identifiers to the global namespace.
+
+   The function `c-namespace-get-identifier' takes a string and returns
+the data associated with that identifier.  It may be used with setf.
+Note that getting an identifier will search through surrounding
+namespaces, but setting will directly set the given namespace.
+
+     (defun c-namespace-get-identifier (c-namespace identifier-string)
+       (loop for namespace = c-namespace then next-namespace?
+             for next-namespace? = (surrounding-c-namespace? namespace)
+             while next-namespace?
+             finally (gethash (local-identifiers namespace)
+                              identifier-string)))
+     
+     (defsetf c-namespace-get-identifier set-c-namespace-get-identifier)
+     
+     (defmacro set-c-namespace-get-identifier
+     	  (c-namespace identifier-string declaration-info)
+       `(setf (gethash (local-identifiers ,c-namespace) ,identifier-string)
+     	 ,declaration-info))
+
+   As translation proceeds, all external symbols of each translated
+file should be added to the global namespace.  When a namespace is made
+for a file, it should not inherit symbols from the global namespace,
+except as they are imported through extern statements.  When a
+namespace is made for a function, it should inherit from the file
+namespace.
+
+   Note that no identifier within any of these namespaces should exceed
+32 characters in length, since that is the limit for the VAX linker.
+
+C File Structures
+=================
+
+   During translation of a Lisp file to a C file, a C file structure
+will be held in a global variable.  The C file structure will contain
+an output stream for the C file, an output stream for the H file, a
+namespace, a data structure for referenced constants, and an
+initialization C function.  It will also have a pointer to the Lisp
+module symbol name, which will have properties holding the information
+from the .glp and .glt files.
+
+   The following functions are available for C file strucutres;
+make-c-file-structure, emit- type-declaration-to-c-file,
+emit-variable-declaration-to-c-file, emit-function-to-c-file,
+emit-constant-to-c-file, emit-string-to-c-file,
+emit-character-to-c-file, emit-line- comment-to-c-file,
+emit-indentation-to-file, emit-freshline-to-file, and emit-newline-to-
+file.  The function reclaim-c-file-structure will also be written, but
+it may only destruct the file structure enough for the garbage
+collector to take care of it.
+
+   The emitters for the differing structure types will be described
+below.  The emitters for indentation, strings, characters, newlines,
+and comments are implemented on the file structure so that we can take
+care of inserting line breaks into long expressions and to enable
+comments to be inserted at the ends of lines.  This is to be used to
+comment frame and structure slot accessor expansions, for example.
+When an expression or character is to be emitted into a file, a check
+is made to determine how far into the line we already are.  If the
+number of characters emitted into the line so far plus the accumulated
+comments are longer than some limit (probably 80 characters), all
+pending end of line comments will be written to the output stream, a
+newline will be sent, the current indentation level plus two will be
+emitted into the new line, and then the new string or character will be
+sent.  We can imagine fancier pretty printers for C expressions that
+would get argument indenting correct, but not today.  When a comment is
+emitted to a C file, it will be kept in a list and will be flushed out
+to the line before any newlines are emitted to the file.
+
+C Type Declaration Structures
+=============================
+
+   In some cases, new C typedef statements may need to be emitted
+within a C file.  In particular, I'm thinking about the case of C
+constants that contains arrays of varying sizes such as strings,
+simple-vectors, byte-vectors, and double-float-vectors.  If such things
+are needed then this structure will be used to represent them.
+
+C Variable Declaration Structures
+=================================
+
+   Variable declaration structures will be used to hold information
+about all C global variables.  They will also be used to hold
+information about Lisp constants that are emitted as "const" C
+variables.  Lists of these will be included in .glt files.  For global
+variables, a property will be held on the Lisp symbol pointing to the C
+variable declaration structure.  That strucuture will contain the C
+identifier, C type, and C initial value.  Note that some global
+variables will also have initial values installed within C file
+initialization functions.  Perhaps there will be a need for a flag
+indicating this in the C variable declaration structure, but I'm not
+certain of that.
+
+C Function Structures
+=====================
+
+   C functions will be represented during translations as structures
+that contain a return type spec, a list of argument type specs, a C
+name string, a Lisp name symbol,a list of C local variable names and
+types, a list of available C local variables and types, and a compound
+statement body.  During the translation of a function, a global
+variable will point to the function.  Functions will exist to allocate
+and reclaim C variables for the function.  When a Lisp variable goes
+out of scope, the C variable for it should be reclaimed for possible
+reuse later in the C function.  Reuse should depend on the type of the
+variable and on the desired C name.  In an earlier version of Chestnut
+they only depended on type for reuse, and many people complained that
+the resulting code was unreadable.
+
+C Statement Structures
+======================
+
+   For each kind of C statement, there will be a different C statement
+structure type.  These structures will all include the type
+c-statement, which contains one a slot, an emitter compiled function.
+
+   The function emit-statement-to-file is used to write all forms of C
+statements to the output streams of file structures.  This function
+takes a statement, a Lisp stream, and an indentation level.  It
+dispatches to a different emitter for each kind of C statement, using
+the documentation in "C, A Reference Manual, 3rd Edition" by Harbison &
+Steele, pages 213-235 as a formatting guide.
+
+   Compound statements are central to translating, so they have some
+extra operations for receiving statements, declarations, and labels
+into them, but otherwise they are unremarkable sibling types to all of
+the other C statement types.  As a matter of convention, each C
+statement emitter will be responsible for statement delimiters and the
+newline after itself.  In general, statement emitters may not assume
+that a newline has preceeded them, since conditional and iterative
+statements emit their held statements without first emitting a newline,
+so that the open brace is on the same line as the condition, per C
+coding conventions.  However, the function to emit indentation will
+always call emit-freshline-to-file before emitting indentation, so in
+practice emitters should not need to send newlines before their
+indentation.
+
+   Each statement emitter is responsible for its own indentation.
+Compound statements should emit their held statements at the
+indentation level given, and their closing curly brace at the given
+level minus one.  All other statements also emit themselves at their
+given indentations.  Conditional and iteration statements are
+responsible for incrementing the indentation level passed to their
+contained statements.
+
+   The following kinds of C statement structures will be implemented:
+c-compound-statement, c-expression-statement, c-label-statement (yes,
+even though it's not really a statement), if-statement, while-statement,
+do-statement, for-statement, switch-statement, break- statement,
+continue-statement, return-statement, and goto-statement.  Note that
+there is no null-statement structure, and that this is the only C
+statement without a corresponding structure.  Null statements may be
+emitted as parts of compound-statements, but otherwise are never
+specifically called for.
+
+C Compound Statement Structures
+===============================
+
+   C compound statements will be used to hold all emitted C statements,
+statement labels, and lexically scoped variable declarations.  When a
+translation is occurring on a Lisp function, the function that performs
+a translation of a Lisp expression will be given a Lisp s-expression, a
+required type spec for the result of the translation, a prolog C
+compound statement, and an epilog C compound statement.  The
+translation function will return a C expression structure that returns
+the values of the translated Lisp expression, but it will also emit
+statements into the prolog C compound statement which must be run
+before the C expression is evaluated, and it will emit cleanup
+statements into the epilog C compound statement which must be run after
+the C expression is evaluated.
+
+   The following functions will be available for C-compound-statements:
+
+   - make-c-compound-statement,
+
+   - emit-statement-to-compound-statement, and
+
+   - emit-label-to-compound-statement.
+
+   Make-c-compound-statment is an argumentless constructor.  The most
+commonly used function will be emit-statement-to-compound-statement,
+which is used to add a new statement to the end of the sequence of
+statements currently held in the compound-statement.  Note that if the
+statement being added is itself a compound statement, then the effect
+is to concatenate its sequence of statements to the end of the
+containing compound statement.  This eliminates unneccessary nested
+curly braces, and is a needed memory optimization given how heavily I
+intend to use compound statments when translating.
+
+   If the compound statement contains no variable declaractions or
+statements, then it will be emitted as a single semicolon and a
+newline.  If the compound statement contains no variable declarations
+and a single contained statement that is neither a c-conditional-
+statement nor a label-statement, then it will emit a newline and its
+one statementat the given indentation.  Otherwise, it will emit a curly
+brace, a newline, emit all variable declarations at the given
+indentation level, emit all its held statements and labels at the given
+indentation level, emit a null statement if the last thing emitted was
+a label, then emit its final curly brace at the given indentation level
+minus one.
+
+   Note that statement labels will be emitted into compound statments
+just as C statements are, except that they will be preceeded by one
+fewer level of indentation, and if the last thing within a compound
+statement is a label, a null statement (i.e. a line containing nothing
+but a semi-colon) is emitted after the label, but before the final
+curly brace of the compound statement.
+
+   Also note that conditional statements held within compound
+statements will always be enclosed within curly braces to protect them
+from inappropriately acquiring dangling else clauses from potentially
+surrounding conditional expressions.
+
+C Expression Statement Structures
+=================================
+
+   Expression statements will hold a c-expression structure.  Expression
+statements will be emitted by emitting the appropriate amount of
+indentation, then emitting the expression, a semicolon, and a newline.
+Note that if the expression is side-effect free, then this emitter may
+decline to emit anything.  C compilers are allowed to make this
+optimization, so this translator is allowed as well (H&S 3rd, p. 215).
+Also note that if the expression is a c-conditional-expression, then
+this expression should be transformed into a c-if- statement, with the
+then and else clauses becoming new c-expression-statements.  Typically
+these C expression statements will be assignment, increment, decrement,
+or function call expressions.
+
+C Label Statement Structures
+============================
+
+   C labels for goto tags, switch case values, and switch default
+branch points will be represented via a c-label-statement.  The label
+slot of this structure will contain a string, which be either a goto
+tag string, the string "case <x>" where x is a switch dispatch value,
+or the string "default".  The emitter for a label will emit the given
+indentation level minus one, emit the held string, a colon, and a
+newline.  This indentation level sets labels even with the opening
+curly braces of their containing compound statements, and sets switch
+case values and default tags at a level even with the opening switch
+statement.
+
+C Conditional Statement Structures
+==================================
+
+   This statement contains a list of alternating c-expressions and
+c-statements.  Each expression is a condition for the following
+statement in a multiway conditional statement (H&S 3rd, p. 218).  If
+the final statement for the multiway conditional is a simple else (i.e.
+always perform the last statement if no preceeding clause was selected)
+then a NIL should be found in place of the c-expression in the last two
+elements of the list.  A c- conditional-statement emits the given
+indentation, emits the string "if (", emits the first c-expression,
+emits the string ") ", then emits the corresponding c-statement at the
+given indentation level plus one.  For all subsequent pairs, it should
+first emit the given indentation level and the string "else ".  If the
+c-expression is non-null then emit "if (", emit the c-expression, and
+emit ") ".  Then emit the c-statement at the indentation level plus one.
+
+   Note that if the C statements within the conditional are compound
+statements, then their opening curly braces will be emitted on the same
+line as the expression.  If it is any other kind of statement or is a
+compound statement holding a single statement, the act of emitting its
+indentation will force a fresh line, placing the statement alone on the
+next line, one indentation level further in from the if statement.
+
+   The proof that we will not experience the dangling else problem is
+only valid if all statements held within conditional statements are
+emitted as compound statements.  This emitter should verify that by
+checking for held conditional statements and wrapping them in a
+compound statement if any are found.
+
+C While Statement Structures
+============================
+
+   The c-while-statement will contain a c-expression and a c-statement.
+It will emit its given level of indentation, the string "while (", the
+c-expression, the string ") ", and then emit the c-statement at the
+given indentation level plus one.
+
+Emitting Indentation
+====================
+
+   The function emit-indentation-to-file takes a number of indentation
+levels to emit and a c file to emit into.  This function will emit a
+freshline to the file then emit two spaces of indentation per level,
+except if the number of levels exceeds 8 (both of these values will be
+parameters in the implementation).  In order to prevent excessively
+long lines, indentation levels over 8 will have a comment at the
+beginning of the line saying how many levels of indentation, and then
+further spaces will be emitted to give an effective indentation of 8
+levels.  The indentation level will also be stored into the c-file
+structure, so that line continuations of expressions can be indented to
+this level plus one or two more extra levels.
+
+Post-Macro Translation
+======================
+
+   After macro-expansion is complete, the s-expressions of a function
+will consist entirely of GLT package special forms and translatable
+functions.  The process of translating is split into several steps,
+each being kept small enough to be simple, but together providing all
+the complexity we need to get the quality of translation desired.  The
+following steps are carried out in sequence: structurizing
+s-expressions and variable references into structures we can use to
+store information about the s-expressions and variables they came from;
+flow path identification through block and unwind-protect forms; Lisp
+type propagation into the structurized forms including expression and
+continuation analysis, C type choosing for variables and structurized
+forms.
+
+Structurizing
+=============
+
+   Once Lisp expressions have been fully macro-expanded into special
+forms and function calls, passes are made over the s-expressions
+replacing s-expressions with an operation structures and then filling
+out the values within them.  The operation structures contain the
+original operator symbol, an argument list, a continuation pointer, a C
+return type for the form, a C operator (if the Lisp operator is not a
+special form), and a flag indicating if this operation and its
+arguments are all side-effect free.  All references to variable values
+will be replaced by references to the lexical-value-operation and
+global-value-operation structures.  Special forms will have their own
+subtypes of the operation structure, containing extra slots for that
+form.  For example, the let-operation structure will hold C variable
+structures for bindings in a LET.
+
+   Structurizing is carred out by the function
+structurize-s-expression.  It operates as follows.  If the expression
+argument is constant-p, it is evaled and returned within a
+quote-operator structure.  If the argument is a symbol, then a matching
+lexical binding is searched for within current-lexical-scope or a
+global variable binding is found, it is saved in a symbol-value-operator
+structure.  If no lexical or global binding can be found, issue an error
+warning and stub in a global variable structure of type T.  If the
+expression argument was neither of the above cases, and is not a cons
+with a special form or function naming symbol in the car, issue an
+error warning and return a stub global variable symbol-value-operator
+to a variable of type T.
+
+   If the symbol in the car of the s-expression list is a special form,
+funcall the structurizer property of the symbol, passing the whole
+s-expression and storing the result.  If the car is a symbol naming a
+function, structurize each argument, collecting them into a list.  Next
+make an operator structure containing the argument list, the original
+operator symbol and the Lisp definition structure for that symbol.
+Next, if the operation is functional (i.e. side-effect free and bases
+its results solely on arguments, e.g. +, -, car, and svref, but not
+get, which uses mutable substructure of the symbol) and if all
+arguments are supplied by quote-operators, then the quoted-values of all
+the quote- operators should be gathered in a list, and the operator
+symbol applied to the list.  The result should be placed into a
+quote-operator to replace the previously structurized form.  Next, if
+the Lisp definition of the operation is side-effect free or functional,
+and if all arguments are also marked as side-effect free, mark this
+structure as side-effect free.
+
+   During the structurizer functions for special forms that produce a
+new lexical variable binding, variable-binding structures are created
+and pushed onto the list of bindings for that symbol in its
+:lexical-bindings property.  References to these variables, from either
+the set-operator or the symbol-value-operator, should examine the
+symbol's :lexical- bindings property for the first binding structure,
+store a pointer to it, and place themselves onto a list of references
+to the variable within the variable-binding structure (these lists are
+used for variable elimination optimizations and type proofs).  After
+structurizing the subforms, the structurizer that bound the lexical
+variable should pop it's variable-binding structures off the symbols'
+properties.
+
+   Whenever a structurizer establishes a new global variable binding, a
+global-variable- binding structure is created and pushed onto a new
+binding of current-lexical scope.  Return statements that exit the
+scope must unbind the global variable.  Whenever a block special form
+is structurized, a block structure is pushed onto a new binding of
+current- lexical-scope.  These structures are used to determine how far
+the lexical scope must be unwound when returning from a block, and they
+are used to determine which block is to receive a return-from.  Lastly,
+whenever an unwind-protect special form is entered, a protect structure
+is pushed onto a new binding of current-lexical-scope.  This is used to
+determine which protect cleanup forms might be "in the way" of a
+return-from and require processing before the return can complete.
+
+   All of the global-variable-binding, block, and protect structures in
+current-lexical-scope are needed to handle return-from forms.
+Structurizing of return-from forms will be handled as follows: A linear
+search is made for the first block matching the target of the
+return-from.  Each global variable binding encountered during the
+search will be kept in a list on the return-from structure, so they can
+be unbound before the return-from exits.  If a protect is found before
+the matching block, then control is going to be passed to the protect
+instead of the final target block.  This is accomplished by creating a
+return-path structure in the unwind-protect-operation and returning to
+it.  After the protect forms have been completed, the unwind-protect
+will continue to return towards the target block, passing through the
+values given to the return-path.  Even though control from this return
+will pass to the protect, the search continues for the matching block.
+Once found, the return-from-operation structure is pushed onto the
+return list of the block.  This is needed for type progation in later
+passes.  If a matching block is found in the current-lexical-scope
+before any protects, then in the return-from -operations structure a
+pointer is kept to it and the return-from-structure is pushed onto the
+list of returns to the block.
+
+   The structurizers for flet, lambda and labels should gather pre-pass
+data on the lexically held function, and push the missed lambda forms
+onto a list of sub-functions.  After structurizing is finished on the
+current function, all subfunctions will be structurized, translated,
+and emitted into the C file before the enclosing function is translated
+and emitted.  After the defining form is pushed onto the list of
+subfunctions, the lisp- definition structure for the new function will
+be pushed onto the :lexical-functions property of the naming symbol.
+After the body of the flet or labels has been structurized, the
+definition for the subfunction should be popped off the :lexical-
+functions property list for the defining symbol.
+
+Type Propagation
+================
+
+   After structurizing has been completed on the body of the function,
+then the structurized form is passed to the function propagate-types.
+Propagate-types take a structurized expression and a type specification
+of the required return type as determined through type declarations or
+through type proofs made during the pre-pass phase.  This function
+propagates Lisp types and optimized C types.  The C type optimizations
+are fixnum to Sint32, double-float to double, character to
+unsigned-char, simple-vector to Obj*, string to char* (note there is no
+difference for fill-pointered strings), (simple-array double- float) to
+double*, (simple-array fixnum) to Sin32*, (simple-array (unsigned-byte
+16)) to unsigned-short*, and (simple-array (unsigned-byte 8) to
+unsigned-char*.  The optimized types will be represented during
+translation by the symbols just given, but of course will be translated
+to C syntax when translated.  The given optimizations will be performed
+on all variable-bindings (including global variables) that are declared
+or proven to contain the named Lisp types.  The forms that define
+translatable operations can be declared to receive the optimized types
+or standard Lisp types.
+
+   Type propagation is iterative at the top level.  Upon first
+receiving being called, type propagation is performed as is.  They
+further type proofs are carried out to see if more tight typing can be
+had for local variables.  If so, then type propagation is performed
+again, checking again if better types can now be determined for local
+variables.  This process repeats until no further variable type
+optimizations can be made.
+
+   If the type of a variable is not declared, we can infer that the
+variable has a more specific type in two circumstances.  First, when
+all settings of the variable return a common type more specific than
+the declared type, then the variable may be declared to always contain
+the more specific type.  For example, if a variable is bound and
+initialized to the value of a +f, we may then infer that the variable
+will always hold a fixnum, which is further optimized to Sint32.
+Second, when references that require a more specific type
+unconditionally follow every setting of the variable, then it will be
+an error for the variable to have a type other than the more specific
+required type, and so we may infer that the variable may be declared to
+have that type, pushing the type requirement of the references further
+"upstream" towards the setting expressions.  For example, this often
+happens in functions that receive frames as arguments.  The slot
+accessors expand into svref calls, which require simple-vector
+arguments so the function argument holding the frame may be optimized
+to simple-vector, and further then to Obj*.
+
+   Note that neither of these optimizations should be taken for
+variables that have explicit type declarations.  The translation should
+consider the types of those variables to be fixed.  If some dependency
+is being made on a function argument to be type Obj in the translation,
+then a user could type declare that argument to be type T, turning off
+all attempts to specialize that argument.
+

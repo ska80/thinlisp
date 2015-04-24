@@ -1,0 +1,121 @@
+;;;; Module tl/c/versions.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/versions.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  '((:SYSTEM-MODULES "tl_boot_symbols" . 3)
+    (:SYSTEM-NICKNAMES "tl_boot_symbols" . 1)
+    (:SYSTEM-USED-SYSTEMS "tl_boot_symbols" . 2))
+  ;; Name for this file's array of quoted symbols.
+  "tl_versions_symbols"
+  ;; Quoted symbols defined in this file.
+  `(:NICKNAMES-TO
+    :ALIAS
+    :SYSTEM-ALL-USED-SYSTEMS
+    TL::UNIX
+    TL::DOS
+    TL::VMS
+    TL::WIN32
+    TL::I386
+    TL::AVIION
+    TL::SGI
+    TL::SEQUENT
+    TL::NEXT
+    TL::DECSTATION
+    TL::MASSCOMP
+    TL::HP9000S300
+    TL::HP9000S400
+    TL::HP9000S700
+    TL::HP9000S800
+    TL::RS6000
+    TL::SUN3
+    TL::SUN4
+    TL::SPARCSOL
+    TL::ALPHAVMS
+    TL::MOTOROLA
+    TL::STRATUS
+    TL::HARRIS
+    TL::NEC
+    TL::ALPHAOSF
+    TL::ALPHANT
+    TL::INTELNT
+    TL::NCR
+    TL::WINDOWS95
+    TL::FREEBSD
+    TL::LINUX
+    TL::MACOSX
+    TL::EXPERIMENTAL-PORT
+    TL::COMPAQ)
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T)
+    (TL::FIND-PACKAGE-OR-ERROR-1 "find_package_or_error_1" FUNCTION (T) PACKAGE)
+    (TL::FORMAT-FUNCTION "format_function" FUNCTION (T STRING T) T)
+    (TL:GET "get" FUNCTION (T T &OPTIONAL T) T)
+    (TL::INTERN-STRING-IN-PACKAGE "intern_string_in_package" FUNCTION (STRING FIXNUM PACKAGE) *)
+    (TL:MEMQ "memq" FUNCTION (T LIST) T)
+    (TL:NREVERSE "nreverse" FUNCTION (LIST) LIST)
+    (TL::SET-GET "set_get" FUNCTION (T T T) T)
+    (TL:SXHASH-STRING "sxhash_string" FUNCTION (STRING) FIXNUM))
+  ;; Defined functions.
+  '((TL::COLLECT-ALL-USED-SYSTEMS . "collect_all_used_systems")
+    (TL:MACHINE-MODEL . "machine_model")
+    (TL:NORMALIZE-MODULE-NAME . "normalize_module_name")
+    (TL:NORMALIZE-SYSTEM-NAME . "normalize_system_name")
+    (TL:SYSTEM-ALIAS . "system_alias")
+    (TL:SYSTEM-ALL-USED-SYSTEMS . "system_all_used_systems")
+    (TL:SYSTEM-MODULES . "system_modules")
+    (TL:SYSTEM-NICKNAMES . "system_nicknames")
+    (TL:SYSTEM-USED-SYSTEMS . "system_used_systems"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ)
+    (CURRENT-REGION "current_region" . OBJ))
+  ;; Defined variables
+  '((TL::ALPHANT-CODE . "alphant_code")
+    (TL::ALPHAOSF-CODE . "alphaosf_code")
+    (TL::ALPHAVMS-CODE . "alphavms_code")
+    (TL::AVIION-CODE . "aviion_code")
+    (TL::COLLECTED-SYSTEMS . "collected_systems")
+    (TL::DECSTATION-CODE . "decstation_code")
+    (TL::DOS-CODE . "dos_code")
+    (TL::FREEBSD-CODE . "freebsd_code")
+    (TL:G2-MACHINE-TYPE . "g2_machine_type")
+    (TL:G2-OPERATING-SYSTEM . "g2_operating_system")
+    (TL::HARRIS-CODE . "harris_code")
+    (TL::HP9000S300-CODE . "hp9000s300_code")
+    (TL::HP9000S400-CODE . "hp9000s400_code")
+    (TL::HP9000S700-CODE . "hp9000s700_code")
+    (TL::HP9000S800-CODE . "hp9000s800_code")
+    (TL::I386-CODE . "i386_code")
+    (TL::INTELNT-CODE . "intelnt_code")
+    (TL::LINUX386-CODE . "linux386_code")
+    (TL:MACHINE-MODEL-VAR . "machine_model_var")
+    (TL::MACOSX-CODE . "macosx_code")
+    (TL::MASSCOMP-CODE . "masscomp_code")
+    (TL::MOTOROLA-CODE . "motorola_code")
+    (TL::NCR-CODE . "ncr_code")
+    (TL::NEC-CODE . "nec_code")
+    (TL::NEXT-CODE . "next_code")
+    (TL::RS6000-CODE . "rs6000_code")
+    (TL::SEQUENT-CODE . "sequent_code")
+    (TL::SGI-CODE . "sgi_code")
+    (TL::SPARCSOL-CODE . "sparcsol_code")
+    (TL::STRATUS-CODE . "stratus_code")
+    (TL::SUN3-CODE . "sun3_code")
+    (TL::SUN4-CODE . "sun4_code")
+    (TL::TL-USER-PACKAGE . "tl_user_package")
+    (TL::VMS-CODE . "vms_code")
+    (TL::WINDOWS95-CODE . "windows95_code"))
+  ;; Used class typedefs.
+  NIL
+  )

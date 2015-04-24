@@ -1,0 +1,36 @@
+;;;; Module tl/c/apply.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/apply.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  NIL
+  ;; Quoted symbols defined in this file.
+  NIL
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::ERROR-ONE-ARG "error_one_arg" FUNCTION (T T) NULL)
+    (TL::ERROR-THREE-ARGS "error_three_args" FUNCTION (T T T T) NULL)
+    (TL::ERROR-TWO-ARGS "error_two_args" FUNCTION (T T T) NULL)
+    (TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T)
+    (TL:NTHCDR "nthcdr" FUNCTION (FIXNUM LIST) T))
+  ;; Defined functions.
+  '((TL::APPLY-1 . "apply_1"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ))
+  ;; Defined variables
+  NIL
+  ;; Used class typedefs.
+  NIL
+  )

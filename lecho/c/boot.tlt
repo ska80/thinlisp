@@ -1,0 +1,41 @@
+;;;; Module lecho/c/boot.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for lecho/lisp/boot.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  '((TL-USER::BOOT "tl_boot_symbols" . 4)
+    (:SYSTEM-MODULES "tl_boot_symbols" . 3)
+    (:SYSTEM-NICKNAMES "tl_boot_symbols" . 1)
+    (:SYSTEM-USED-SYSTEMS "tl_boot_symbols" . 2)
+    (TL-USER::TL "tl_boot_symbols" . 0))
+  ;; Name for this file's array of quoted symbols.
+  "lecho_boot_symbols"
+  ;; Quoted symbols defined in this file.
+  `(TL-USER::LECHO
+    TL-USER::ECHO)
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T)
+    (TL::MAKE-PACKAGE-1 "make_package_1" FUNCTION (STRING T) T)
+    (TL::SET-GET "set_get" FUNCTION (T T T) T))
+  ;; Defined functions.
+  NIL
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ)
+    (TL:ALL-SYSTEMS "all_systems" . OBJ)
+    (TL:CURRENT-SYSTEM-BEING-LOADED "current_system_being_loaded" . OBJ))
+  ;; Defined variables
+  NIL
+  ;; Used class typedefs.
+  NIL
+  )

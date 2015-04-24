@@ -1,0 +1,41 @@
+This is tl-manual.info, produced by makeinfo version 4.0 from
+tl-manual.texinfo.
+
+   The rationale and associated descriptions of ThinLisp, a Lisp-to-C
+translator for real time applications and anything that shouldn't be
+fat and slow.
+
+   Copyright (c) 1999-2001 The ThinLisp Group
+
+
+Indirect:
+tl-manual.info-1: 283
+tl-manual.info-2: 30276
+tl-manual.info-3: 77228
+
+Tag Table:
+(Indirect)
+Node: Top283
+Node: Acknowledgements737
+Node: Preface2429
+Node: Rant3760
+Ref: Rant-Footnote-124715
+Ref: Rant-Footnote-224836
+Ref: Rant-Footnote-324976
+Ref: Rant-Footnote-425155
+Node: ThinLisp-Compromise25376
+Ref: ThinLisp-Compromise-Footnote-130124
+Node: Original-Notes30276
+Node: Memory77228
+Ref: Memory-Footnote-194777
+Ref: Memory-Footnote-295538
+Ref: Memory-Footnote-396066
+Ref: Memory-Footnote-496121
+Ref: Memory-Footnote-596395
+Ref: Memory-Footnote-696504
+Node: Original-Introduction96605
+Ref: Original-Introduction-Footnote-199561
+Node: Required-Symbols99626
+Node: Index104110
+
+End Tag Table

@@ -1,0 +1,38 @@
+;;;; Module tl/c/generic-prim.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/generic-prim.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  NIL
+  ;; Quoted symbols defined in this file.
+  NIL
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::ERROR-ONE-ARG "error_one_arg" FUNCTION (T T) NULL)
+    (TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T)
+    (TL:NTH "nth" FUNCTION (FIXNUM LIST) T)
+    (TL:NTHCDR "nthcdr" FUNCTION (FIXNUM LIST) T))
+  ;; Defined functions.
+  '((TL::GENERIC-AREF . "generic_aref")
+    (TL::GENERIC-ELT . "generic_elt")
+    (TL::GENERIC-SET-AREF . "generic_set_aref")
+    (TL::GENERIC-SET-ELT . "generic_set_elt"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ))
+  ;; Defined variables
+  NIL
+  ;; Used class typedefs.
+  NIL
+  )

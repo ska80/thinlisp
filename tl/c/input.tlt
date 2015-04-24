@@ -1,0 +1,52 @@
+;;;; Module tl/c/input.c
+
+;;; Copyright (c) 2001 The Thinlisp Group All Rights Reserved.
+
+;;; Translation data for tl/lisp/input.lisp.
+;;; The following is the value of the trans-data-tlt-version parameter.
+2
+
+(make-trans-data
+  ;; Used quoted symbols = (symbol symbol-array . index).
+  NIL
+  ;; Name for this file's array of quoted symbols.
+  "tl_input_symbols"
+  ;; Quoted symbols defined in this file.
+  `(:ERROR
+    :CREATE
+    :OVERWRITE
+    :SUPERSEDE
+    :APPEND)
+  ;; Used compiled-functions = (name func-array . index).
+  NIL
+  ;; Name for this file's array of compiled-functions.
+  NIL
+  ;; Compiled-function objects defined in this file.
+  NIL
+  ;; Used function type signatures.
+  '((TL::ERROR-ONE-ARG "error_one_arg" FUNCTION (T T) NULL)
+    (TL::ERROR-TWO-ARGS "error_two_args" FUNCTION (T T T) NULL)
+    (TL::FIND-PACKAGE-1 "find_package_1" FUNCTION (T) T))
+  ;; Defined functions.
+  '((TL::ANALYZE-FILE-STREAM-ERROR . "analyze_file_stream_error")
+    (TL::CREATE-FILE . "create_file")
+    (TL::ERROR-OR-VALUE . "error_or_value")
+    (TL::GENERIC-CLOSE . "generic_close")
+    (TL::GENERIC-READ-CHAR . "generic_read_char")
+    (TL::GENERIC-READ-LINE . "generic_read_line")
+    (TL::OPEN-FOR-BINARY-INPUT . "open_for_binary_input")
+    (TL::OPEN-FOR-BINARY-OUTPUT . "open_for_binary_output")
+    (TL::OPEN-FOR-TEXT-INPUT . "open_for_text_input")
+    (TL::OPEN-FOR-TEXT-OUTPUT . "open_for_text_output")
+    (TL::READ-FROM-STRING-1 . "read_from_string_1")
+    (TL:READ-LINE-FROM-FILE-STREAM . "read_line_from_file_stream")
+    (TL:READ-LINE-FROM-STRING-STREAM . "read_line_from_string_stream"))
+  ;; Used variables = (symbol c-name . type).
+  '((*PACKAGE* "SpackageS" . OBJ)
+    (*TERMINAL-IO* "Sterminal_ioS" . OBJ))
+  ;; Defined variables
+  '((TL::*INPUT-STRING-BUFFER* . "Sinput_string_bufferS")
+    (TL::*INPUT-STRING-BUFFER-SIZE* . "Sinput_string_buffer_sizeS"))
+  ;; Used class typedefs.
+  NIL
+  )

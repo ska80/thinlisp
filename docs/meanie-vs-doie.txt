@@ -1,0 +1,74 @@
+
+
+
+Jim Allard writes:
+
+
+> I think you can use your reaction to this example as a personality 
+> test.  
+
+
+Yeah, Myers-Briggs. :) :) :) Five bucks sez that over a statistically
+valid sample (>500 programmers) "do"ies map to INTJs and "mean"ies map
+to INTP in a statistically interesting way.
+
+
+Just my observation on anecdotal data.  INTPs (or for you sceptics,
+those people who report "INTP" on the MBTI and related questionaires)
+seem to be much more comfortable with LISP (well, Scheme -- I took
+6.001).  I, an INTJ, felt when dealing with Scheme as if (by
+description) I were on a very, very, very bad acid trip.
+
+
+(Of course, other Types code, but I haven't decided how they would
+work out.  My guess is it's a simple J/P thing.)
+
+
+(Note, however, I don't do C, either.  I understand that I would love
+Java, and should go learn it, but haven't yet.)
+
+
+> If you love the clean simplicity of the C answer, then you're a 
+> "do"ie.  If you can't stomach an environment without the guarantees in the 
+> Common Lisp answer, then you're a "mean"ie.
+
+
+That would make me a "do"ie, I guess.  It looks from here like your
+dichotomy is between
+
+
+(1, meanie) Programmers who want a language that does the right thing,
+thereby that they may trust that clearly, properly articulated
+expressions in that language will function as they desire,
+
+
+and
+
+
+(2, doie) Programmers who want the language to let them do the right
+thing, and not get in their way as they go about it their own
+idiocyncratic way.
+
+
+Alexander Pope once wrote of the craft of poetry, "Tis not enough no
+harshness give offense// the sound must seem an echo to the sense."
+IIRC, e.e.cummings replied "Take care of the sounds and the sense will
+follow."  
+
+
+The meanies sound like they are in cummings camp, taking care of the
+sounds, so the sense will follow; I'm a follower of Pope, bending the
+sounds to the purpose of my sense.
+
+
+Or another way: I see meanies as gardeners or arborists: they tend
+their language, and it bears fruit.  I see myself as a doie as a
+mechanic: I see programs as machines to be built and tuned, and to be
+pushed to their limits.
+
+
+(And I am learning Tcl *why*?  >sigh<)
+
+
+-- Vanessa Layne
+   goliard@weasel.terc.edu 
